@@ -8,6 +8,7 @@ function SketchTools () {
   const { selected, setSelected } = useContext(Appstate)
   return (
     <ToolBoxWrapper right>
+      <div className='h-full flex flex-col items-center justify-between'>
       <div className='grid grid-cols-3 w-fit h-[100px] transition-all p-2 gap-2'>
         {sketchToolsUrl.map((item, index) => (
           <div
@@ -18,11 +19,12 @@ function SketchTools () {
             } hover:bg-slate-100`}
             onClick={() => setSelected(item.id)}
           >
-            <img src={item.url} className='h-4' />
+            <img src={item.url} className='h-6' />
           </div>
         ))}
       </div>
       <ToolBoxTitle>Tools</ToolBoxTitle>
+      </div>
     </ToolBoxWrapper>
   )
 }

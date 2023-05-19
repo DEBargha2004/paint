@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
+import Appstate from '../hooks/appstate'
 
 const Canvas = () => {
+  const { selected, selectedStyle,canvasData,setCanvasData,setUndoStack } = useContext(Appstate)
   const [isClicked, setIsClicked] = useState(false)
   const [[lastX, lastY], setLast] = useState([0, 0])
   const handleMouseDown = e => {
@@ -9,6 +11,9 @@ const Canvas = () => {
   }
   const handleMouseUp = () => {
     setIsClicked(false)
+    // const canvas = document.querySelector('canvas').getContext('2d')
+    // const imageData = canvas.getImageData(0,0,canvas.width,canvas.height)
+    // setUndoStack(prev => [...prev,imageData])
   }
   const handleMouseOut = () => {
     setIsClicked(false)
@@ -17,33 +22,49 @@ const Canvas = () => {
     // setIsClicked(true)
   }
   const handleMouseMove = e => {
-    if (!isClicked) return
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d')
-
-    console.log(e)
     const { offsetX, offsetY } = e.nativeEvent
-
-    ctx.lineWidth = 10
+    ctx.lineWidth = selectedStyle.size
     ctx.lineCap = 'round'
-    ctx.strokeStyle = 'red'
 
-    console.log(e)
+    if (isClicked) {
+      if (selected === 101) {
+        ctx.strokeStyle = `rgba(${selectedStyle.color.r},${selectedStyle.color.g},${selectedStyle.color.b},${selectedStyle.color.a})`
 
-    setLast([offsetX, offsetY])
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
+
+        setLast([offsetX, offsetY])
+      } else if (selected === 103) {
+        ctx.strokeStyle = 'white'
+
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
+
+        setLast([offsetX, offsetY])
+      }
+    }
+    setCanvasData(ctx.getImageData(0,0,canvas.width,canvas.height))
   }
+  useEffect(()=>{
+
+  },[])
   return (
-    <div className='w-full h-[500px] overflow-y-scroll border-2 border-red flex justify-center p-10'>
-      <canvas
-        id='canvasRef'
-        className='border-[1px] border-[#00000021] w-full h-[800px] shadow-md shadow-[#0000004b]'
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseOut}
-        onMouseEnter={handleMouseEnter}
-        onMouseMove={handleMouseMove}
-      />
-    </div>
+    <canvas
+      className='border-[1px] border-[#00000021] shadow-md shadow-[#0000004b]'
+      height={700}
+      width={window.innerWidth - 200}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseOut}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+    />
   )
 }
 export default Canvas

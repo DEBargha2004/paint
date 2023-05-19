@@ -19,7 +19,7 @@ function Brush () {
           >
             <img
               src={item.url}
-              className='h-10 mx-auto hover:bg-slate-100'
+              className='h-12 mx-auto hover:bg-slate-100 p-2'
               alt=''
             />
             <img

@@ -31,25 +31,27 @@ export const size = [
   }
 ]
 
-export const colors = [
-  'rgb(255, 0, 0)', // Red
-  'rgb(0, 255, 0)', // Green
-  'rgb(0, 0, 255)', // Blue
-  'rgb(255, 255, 0)', // Yellow
-  'rgb(255, 0, 255)', // Magenta
-  'rgb(0, 255, 255)', // Cyan
-  'rgb(255, 128, 0)', // Orange
-  'rgb(128, 0, 255)', // Purple
-  'rgb(0, 255, 128)', // Lime
-  'rgb(128, 255, 0)', // Chartreuse
-  'rgb(255, 0, 128)', // Rose
-  'rgb(0, 128, 255)', // Azure
-  'rgb(255, 128, 128)', // Salmon
-  'rgb(128, 255, 128)', // Spring Green
-  'rgb(128, 128, 255)', // Periwinkle
-  'rgb(255, 255, 128)', // Pastel Yellow
-  'rgb(255, 128, 255)', // Orchid
-  'rgb(128, 255, 255)', // Aqua
-  'rgb(192, 192, 192)', // Silver
-  'rgb(128, 128, 128)' // Gray
-]
+export const colors =
+  // Result of the algorithm
+  [
+    { r: 255, g: 0, b: 0, a: 1 }, // Red
+    { r: 0, g: 255, b: 0, a: 1 }, // Green
+    { r: 0, g: 0, b: 255, a: 1 }, // Blue
+    { r: 255, g: 255, b: 0, a: 1 }, // Yellow
+    { r: 255, g: 0, b: 255, a: 1 }, // Magenta
+    { r: 0, g: 255, b: 255, a: 1 }, // Cyan
+    { r: 255, g: 128, b: 0, a: 1 }, // Orange
+    { r: 128, g: 0, b: 255, a: 1 }, // Purple
+    { r: 0, g: 255, b: 128, a: 1 }, // Lime
+    { r: 128, g: 255, b: 0, a: 1 }, // Chartreuse
+    { r: 255, g: 0, b: 128, a: 1 }, // Rose
+    { r: 0, g: 128, b: 255, a: 1 }, // Azure
+    { r: 255, g: 128, b: 128, a: 1 }, // Salmon
+    { r: 128, g: 255, b: 128, a: 1 }, // Spring Green
+    { r: 128, g: 128, b: 255, a: 1 }, // Periwinkle
+    { r: 255, g: 255, b: 128, a: 1 }, // Pastel Yellow
+    { r: 255, g: 128, b: 255, a: 1 }, // Orchid
+    { r: 128, g: 255, b: 255, a: 1 }, // Aqua
+    { r: 192, g: 192, b: 192, a: 1 }, // Silver
+    { r: 128, g: 128, b: 128, a: 1 } // Gray
+  ]
