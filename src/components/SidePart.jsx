@@ -6,7 +6,7 @@ function SidePart () {
   const { canvasData } = useContext(Appstate)
 
   return (
-    <div className='h-[93%] w-full flex flex-col items-center'>
+    <div className='h-[89%] w-full flex flex-col items-center overflow-y-scroll'>
       {canvasData[0].map((item, index) => {
         return (
           <SidePartComponent key={index} Index={index} />

@@ -13,9 +13,14 @@ const Canvas = () => {
   }
   const handleMouseUp = () => {
     setIsClicked(false)
-    // const canvas = document.querySelector('canvas').getContext('2d')
-    // const imageData = canvas.getImageData(0,0,canvas.width,canvas.height)
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     // setUndoStack(prev => [...prev,imageData])
+    setCanvasData(prev => {
+      let [dataSet, index] = prev
+      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      return [dataSet, index]
+    })
   }
   const handleMouseOut = () => {
     setIsClicked(false)
@@ -25,7 +30,7 @@ const Canvas = () => {
   }
   const handleMouseMove = e => {
     const canvas = document.querySelector('canvas')
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     const { offsetX, offsetY } = e.nativeEvent
     ctx.lineWidth = selectedStyle.size
     ctx.lineCap = 'round'
@@ -51,20 +56,15 @@ const Canvas = () => {
         setLast([offsetX, offsetY])
       }
     }
-    setCanvasData(prev => {
-      let [dataSet, index] = prev
-      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      return [dataSet, index]
-    })
   }
 
   useEffect(() => {
     const canvas = document.querySelector('canvas')
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
       : ctx.clearRect(0, 0, canvas.width, canvas.height)
-  }, [index])
+  }, [index, canvasData[0].length])
 
   return (
     <canvas
