@@ -2,9 +2,11 @@ import { useState, useContext, useEffect } from 'react'
 import Appstate from '../hooks/appstate'
 
 const Canvas = () => {
-  const { selected, selectedStyle,canvasData,setCanvasData,setUndoStack } = useContext(Appstate)
+  const { selected, selectedStyle, canvasData, setCanvasData, setUndoStack } =
+    useContext(Appstate)
   const [isClicked, setIsClicked] = useState(false)
   const [[lastX, lastY], setLast] = useState([0, 0])
+  let [dataSet, index] = canvasData
   const handleMouseDown = e => {
     setIsClicked(true)
     setLast([e.offsetX, e.offsetY])
@@ -49,16 +51,26 @@ const Canvas = () => {
         setLast([offsetX, offsetY])
       }
     }
-    setCanvasData(ctx.getImageData(0,0,canvas.width,canvas.height))
+    setCanvasData(prev => {
+      let [dataSet, index] = prev
+      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      return [dataSet, index]
+    })
   }
-  useEffect(()=>{
 
-  },[])
+  useEffect(() => {
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d')
+    dataSet[index]
+      ? ctx.putImageData(dataSet[index], 0, 0)
+      : ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }, [index])
+
   return (
     <canvas
-      className='border-[1px] border-[#00000021] shadow-md shadow-[#0000004b]'
+      className='shadow-md shadow-[#0000004b]'
       height={700}
-      width={window.innerWidth - 200}
+      width={window.innerWidth - 400}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseOut}

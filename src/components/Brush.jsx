@@ -11,6 +11,7 @@ function Brush () {
       <div className={`h-full flex flex-col justify-between items-center`}>
         {brush.map((item, index) => (
           <div
+            key={index}
             className={`mt-6 p-1 ${
               selected === item.id &&
               'rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col items-center justify-between'

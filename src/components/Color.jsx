@@ -28,6 +28,7 @@ function Color () {
         <div className='grid grid-cols-10 gap-3'>
           {colors.map((color, index) => (
             <div
+            key={index}
               className={`h-6 w-6 rounded-full outline outline-1 outline-offset-1 ${selectedStyle.color === color ? 'outline-gray-800' : 'outline-gray-300'}`}
               style={{
                 backgroundColor: `rgba(${color.r},${color.g},${color.b},${color.a})`
