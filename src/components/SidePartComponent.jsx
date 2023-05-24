@@ -21,6 +21,9 @@ function SidePartComponent ({ Index }) {
       return [dataSet, index]
     })
   }
+  const handleDrag = e => {
+    e.dataTransfer.setData("slide",Index)
+  }
   useEffect(() => {
     setWidth(sideCanvas.current.clientWidth)
   }, [])
@@ -38,6 +41,10 @@ function SidePartComponent ({ Index }) {
   }, [canvasData, width])
   return (
     <div
+      draggable
+      onDrag={handleDrag}
+      // onDragEnter={(e)=>console.log(e.target)}
+      onDragLeave={e => console.log(e.target)}
       className='w-[80%] shadow-md shadow-[#0000003b] bg-contain bg-no-repeat cursor-pointer shrink-0 relative rounded-lg overflow-hidden mb-2'
       style={{ height: `${(700 / (window.innerWidth - 400)) * width}px` }}
       ref={sideCanvas}

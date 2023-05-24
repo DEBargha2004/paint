@@ -4,6 +4,7 @@ import { SketchPicker } from 'react-color'
 import ToolBoxWrapper from './ToolBoxWrapper'
 import { colors } from '../assets/Tools'
 import chroma from 'chroma-js'
+import { rgba } from '../functions/rgba'
 
 function Color () {
   const { selectedStyle, setSelectedStyle } = useContext(Appstate)
@@ -21,7 +22,7 @@ function Color () {
           <div
             className='h-10 aspect-square rounded-full mx-3'
             style={{
-              backgroundColor: `rgba(${selectedStyle.color.r},${selectedStyle.color.g},${selectedStyle.color.b},${selectedStyle.color.a})`
+              backgroundColor: rgba(selectedStyle.color)
             }}
           />
         </div>

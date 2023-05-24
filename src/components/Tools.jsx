@@ -7,7 +7,7 @@ import AddSlide from './AddSlide'
 
 function Tools () {
   return (
-    <div className='w-full p-2 flex'>
+    <div className='w-full p-2 flex sticky top-0 bg-white shadow-md shadow-[#00000015] z-10'>
       <AddSlide />
       <SketchTools />
       <Brush />

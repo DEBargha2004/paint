@@ -2,7 +2,7 @@ import Appstate from './hooks/appstate'
 import Navbar from './components/Navbar'
 import LowerBody from './components/lowerBody'
 import Tools from './components/Tools'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function App () {
   const [selected, setSelected] = useState(null)
@@ -13,6 +13,13 @@ function App () {
   const [canvasData, setCanvasData] = useState([[null], 0])
   const [undoStack, setUndoStack] = useState([])
   const [redoStack, setRedoStack] = useState([])
+  useEffect(()=>{
+    if(selected === 104){
+      setSelectedStyle(prev => ({...prev,size:20}))
+    }else {
+      setSelectedStyle(prev => ({...prev,size:1}))
+    }
+  },[selected])
   return (
     <Appstate.Provider
       value={{

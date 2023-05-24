@@ -1,25 +1,56 @@
 import ToolBoxWrapper from './ToolBoxWrapper'
 import ToolBoxTitle from './ToolBoxTitle'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Appstate from '../hooks/appstate'
 import { size } from '../assets/Tools'
 
 function Size () {
-  const { selected, setSelected, setSelectedStyle, selectedStyle } =
-    useContext(Appstate)
+  const { selected, setSelectedStyle, selectedStyle } = useContext(Appstate)
+  const [showList, setShowList] = useState(false)
+  const [max,setMax] = useState(1)
+  const sizeRef = useRef(null)
   const handleSizeChange = e => {
     setSelectedStyle(prev => ({ ...prev, size: e.target.value }))
   }
+  useEffect(() => {
+    if(!selected) return
+
+    const maxRange = () => {
+      if (selected === '201a' || selected === '201d') {
+        return 16
+      } else if (selected === '201b') {
+        return 1
+      } else if (selected === '201c') {
+        return 1
+      }else if (selected === 101) {
+        return 4
+      } else if (selected === 103 || selected === 104) {
+        return 100
+      }
+    }
+    setMax(maxRange)
+  }, [selected])
+  useEffect(() => {
+    const handleListClose = e => {
+      if (!sizeRef.current.contains(e.target)) {
+        setShowList(false)
+      }
+    }
+    document.addEventListener('click', handleListClose)
+  }, [])
   return (
     <ToolBoxWrapper right>
-      <div className='h-full flex flex-col justify-between items-center px-3 relative'>
+      <div
+        ref={sizeRef}
+        className='h-full flex flex-col justify-between items-center px-3 relative'
+      >
         <div
           className={`mt-6 p-1 hover:bg-slate-100 ${
-            selected === size[0].id &&
+            showList &&
             'rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col justify-center items-center'
           }`}
           onClick={() => {
-            setSelected(size[0].id)
+            setShowList(prev => !prev)
           }}
         >
           <img src={size[0].url} alt='' className='h-10' />
@@ -30,11 +61,11 @@ function Size () {
           />
         </div>
         <ToolBoxTitle>Size</ToolBoxTitle>
-        {selected === size[0].id ? (
+        {showList ? (
           <div className='absolute bottom-[-20px] text-black w-fit p-4 rounded-lg  bg-white border-[1px] border-[#00000036]'>
             <input
               type='range'
-              max={100}
+              max={max}
               min={1}
               value={selectedStyle.size}
               onChange={handleSizeChange}
@@ -47,7 +78,7 @@ function Size () {
                 {selectedStyle.size}
               </div>
               <div className=' h-6 px-1 rounded-md flex justify-center items-center bg-blue-700 text-white'>
-                100
+                {max}
               </div>
             </div>
           </div>

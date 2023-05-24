@@ -3,10 +3,10 @@ export const sketchToolsUrl = [
     id: 101,
     url: 'https://cdn-icons-png.flaticon.com/512/10473/10473628.png'
   },
-  {
-    id: 102,
-    url: 'https://cdn-icons-png.flaticon.com/512/1959/1959717.png'
-  },
+  // {
+  //   id: 102,
+  //   url: 'https://cdn-icons-png.flaticon.com/512/1959/1959717.png'
+  // },
   {
     id: 103,
     url: 'https://cdn-icons-png.flaticon.com/512/2015/2015014.png'
@@ -55,3 +55,22 @@ export const colors =
     { r: 192, g: 192, b: 192, a: 1 }, // Silver
     { r: 128, g: 128, b: 128, a: 1 } // Gray
   ]
+
+export const brushList = [
+  {
+    id: '201a',
+    name: 'Natural Pencil'
+  },
+  {
+    id: '201b',
+    name: 'crayon'
+  },
+  {
+    id: '201c',
+    name: 'pen'
+  },
+  {
+    id : '201d',
+    name : 'spray'
+  }
+]
