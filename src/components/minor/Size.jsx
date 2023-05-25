@@ -1,8 +1,8 @@
 import ToolBoxWrapper from './ToolBoxWrapper'
 import ToolBoxTitle from './ToolBoxTitle'
 import { useContext, useEffect, useRef, useState } from 'react'
-import Appstate from '../hooks/appstate'
-import { size } from '../assets/Tools'
+import Appstate from '../../hooks/appstate'
+import { size } from '../../assets/Tools'
 
 function Size () {
   const { selected, setSelectedStyle, selectedStyle } = useContext(Appstate)

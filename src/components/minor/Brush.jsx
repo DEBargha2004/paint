@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 import ToolBoxWrapper from './ToolBoxWrapper'
 import ToolBoxTitle from './ToolBoxTitle'
-import { brush, brushList } from '../assets/Tools'
+import { brush, brushList } from '../../assets/Tools'
 
 function Brush () {
   const { selected, setSelected } = useContext(Appstate)

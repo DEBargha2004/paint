@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import Canvas from './Canvas'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 
 function CanvasWrapper () {
   const { canvasData } = useContext(Appstate)

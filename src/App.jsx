@@ -1,7 +1,7 @@
 import Appstate from './hooks/appstate'
-import Navbar from './components/Navbar'
-import LowerBody from './components/lowerBody'
-import Tools from './components/Tools'
+import Navbar from './components/minor/Navbar'
+import LowerBody from './components/major/LowerBody'
+import Tools from './components/major/Tools'
 import { useEffect, useState } from 'react'
 
 function App () {
@@ -13,6 +13,14 @@ function App () {
   const [canvasData, setCanvasData] = useState([[null], 0])
   const [undoStack, setUndoStack] = useState([])
   const [redoStack, setRedoStack] = useState([])
+  const [inputBoxInfo, setInputBoxInfo] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    value: '',
+    textboxWidth: 0,
+    fontFamilyIndex : 0
+  })
   useEffect(()=>{
     if(selected === 104){
       setSelectedStyle(prev => ({...prev,size:20}))
@@ -32,7 +40,9 @@ function App () {
         setUndoStack,
         setRedoStack,
         undoStack,
-        redoStack
+        redoStack,
+        inputBoxInfo,
+        setInputBoxInfo
       }}
     >
       {/* <Navbar /> */}

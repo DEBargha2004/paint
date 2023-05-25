@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 import SidePartComponent from './SidePartComponent'
 
 function SidePart () {

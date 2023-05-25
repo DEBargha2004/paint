@@ -1,7 +1,7 @@
 import {useContext} from 'react'
-import SidePart from './SidePart'
-import Appstate from '../hooks/appstate'
-import CanvasWrapper from './CanvasWrapper'
+import SidePart from '../minor/SidePart'
+import Appstate from '../../hooks/appstate'
+import CanvasWrapper from '../minor/CanvasWrapper'
 
 function LowerBody() {
   const {canvasData} = useContext(Appstate)

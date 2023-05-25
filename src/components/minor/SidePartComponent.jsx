@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 
 function SidePartComponent ({ Index }) {
   const { canvasData, setCanvasData } = useContext(Appstate)

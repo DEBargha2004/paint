@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import ToolBoxWrapper from './ToolBoxWrapper'
 import ToolBoxTitle from './ToolBoxTitle'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 
 function AddSlide () {
   const { setCanvasData } = useContext(Appstate)

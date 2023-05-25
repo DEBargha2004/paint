@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 import ToolBoxWrapper from './ToolBoxWrapper'
 import ToolBoxTitle from './ToolBoxTitle'
-import { sketchToolsUrl } from '../assets/Tools.js'
+import { sketchToolsUrl } from '../../assets/Tools.js'
 
 function SketchTools () {
   const { selected, setSelected } = useContext(Appstate)

@@ -1,23 +1,25 @@
 import { useState, useContext, useEffect, useRef } from 'react'
-import Appstate from '../hooks/appstate'
-import { rgba } from '../functions/rgba'
+import Appstate from '../../hooks/appstate'
+import { rgba } from '../../functions/rgba'
 import chroma from 'chroma-js'
-import { position } from '../functions/position'
-import { textSize } from '../functions/textSize'
-import { print_MultilineText } from '../functions/multilineText'
+import { position } from '../../functions/position'
+import { textSize } from '../../functions/textSize'
+import { print_MultilineText } from '../../functions/multilineText'
+import { fontStyles } from '../../assets/Tools'
 
 const Canvas = () => {
-  const { selected, selectedStyle, canvasData, setCanvasData, setUndoStack } =
-    useContext(Appstate)
+  const {
+    selected,
+    selectedStyle,
+    canvasData,
+    setCanvasData,
+    setUndoStack,
+    inputBoxInfo,
+    setInputBoxInfo
+  } = useContext(Appstate)
   const [isClicked, setIsClicked] = useState(false)
   const [[lastX, lastY], setLast] = useState([0, 0])
-  const [inputBoxInfo, setInputBoxInfo] = useState({
-    visible: false,
-    x: 0,
-    y: 0,
-    value: '',
-    textboxWidth: 0
-  })
+
   const InputBox = useRef(null)
   let [dataSet, index] = canvasData
   const handleMouseDown = e => {
@@ -118,7 +120,7 @@ const Canvas = () => {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (selected === 104) {
       const fontSize = Number(selectedStyle.size) + 4
-      ctx.font = `${fontSize}px serif`
+      ctx.font = `${fontSize}px ${fontStyles[inputBoxInfo.fontFamilyIndex]}`
       ctx.fillStyle = rgba(selectedStyle.color)
       const textDimensions = ctx.measureText(text)
 
@@ -139,7 +141,7 @@ const Canvas = () => {
       InputBox.current.focus()
       inputBoxInfo.value &&
         // ctx.fillText(text, inputBoxInfo.x, textPosY, inputBoxInfo.textboxWidth)
-        print_MultilineText(inputBoxInfo.value,textHeight,ctx,inputBoxInfo)
+        print_MultilineText(inputBoxInfo.value, textHeight, ctx, inputBoxInfo)
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
       // const fabricCanvas = new fabric.Canvas(canvas)
       // const fabricTextbox = new fabric.Textbox('Hello World',{
@@ -212,6 +214,8 @@ const Canvas = () => {
           resize: 'both',
           display: selected === 104 && inputBoxInfo.visible ? 'block' : 'none',
           color: rgba(selectedStyle.color),
+          lineHeight: '46.8px',
+          fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex]
         }}
         ref={InputBox}
         onChange={handleInputBoxChange}

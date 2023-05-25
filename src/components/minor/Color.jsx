@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react'
-import Appstate from '../hooks/appstate'
+import Appstate from '../../hooks/appstate'
 import { SketchPicker } from 'react-color'
 import ToolBoxWrapper from './ToolBoxWrapper'
-import { colors } from '../assets/Tools'
+import { colors } from '../../assets/Tools'
 import chroma from 'chroma-js'
-import { rgba } from '../functions/rgba'
+import { rgba } from '../../functions/rgba'
 
 function Color () {
   const { selectedStyle, setSelectedStyle } = useContext(Appstate)
