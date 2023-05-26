@@ -7,13 +7,13 @@ import { size } from '../../assets/Tools'
 function Size () {
   const { selected, setSelectedStyle, selectedStyle } = useContext(Appstate)
   const [showList, setShowList] = useState(false)
-  const [max,setMax] = useState(1)
+  const [max, setMax] = useState(1)
   const sizeRef = useRef(null)
   const handleSizeChange = e => {
     setSelectedStyle(prev => ({ ...prev, size: e.target.value }))
   }
   useEffect(() => {
-    if(!selected) return
+    if (!selected) return
 
     const maxRange = () => {
       if (selected === '201a' || selected === '201d') {
@@ -22,7 +22,7 @@ function Size () {
         return 1
       } else if (selected === '201c') {
         return 1
-      }else if (selected === 101) {
+      } else if (selected === 101) {
         return 4
       } else if (selected === 103 || selected === 104) {
         return 100

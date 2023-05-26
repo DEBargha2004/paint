@@ -177,3 +177,5 @@ export const fontStyles = [
   'Edwardian Script ITC, cursive',
   'Vivaldi, cursive'
 ]
+
+export const lineHeight = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3]

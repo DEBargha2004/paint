@@ -5,7 +5,7 @@ import chroma from 'chroma-js'
 import { position } from '../../functions/position'
 import { textSize } from '../../functions/textSize'
 import { print_MultilineText } from '../../functions/multilineText'
-import { fontStyles } from '../../assets/Tools'
+import { fontStyles, lineHeight } from '../../assets/Tools'
 
 const Canvas = () => {
   const {
@@ -141,7 +141,7 @@ const Canvas = () => {
       InputBox.current.focus()
       inputBoxInfo.value &&
         // ctx.fillText(text, inputBoxInfo.x, textPosY, inputBoxInfo.textboxWidth)
-        print_MultilineText(inputBoxInfo.value, textHeight, ctx, inputBoxInfo)
+        print_MultilineText( textHeight, ctx, inputBoxInfo,selectedStyle.size)
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
       // const fabricCanvas = new fabric.Canvas(canvas)
       // const fabricTextbox = new fabric.Textbox('Hello World',{
@@ -214,8 +214,9 @@ const Canvas = () => {
           resize: 'both',
           display: selected === 104 && inputBoxInfo.visible ? 'block' : 'none',
           color: rgba(selectedStyle.color),
-          lineHeight: '46.8px',
-          fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex]
+          fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
+          lineHeight:lineHeight[inputBoxInfo.lineHeightIndex],
+          
         }}
         ref={InputBox}
         onChange={handleInputBoxChange}

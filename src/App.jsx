@@ -19,7 +19,8 @@ function App () {
     y: 0,
     value: '',
     textboxWidth: 0,
-    fontFamilyIndex : 0
+    fontFamilyIndex : 0,
+    lineHeightIndex : 0
   })
   useEffect(()=>{
     if(selected === 104){
