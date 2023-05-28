@@ -6,23 +6,27 @@ function SidePartComponent ({ Index }) {
   const [isHovering, setIsHovering] = useState(false)
   const [width, setWidth] = useState(0)
   const sideCanvas = useRef(null)
+  const deleteIcon = useRef(null)
 
-  const changeSlide = () => {
-    setCanvasData(prev => {
-      let [dataSet, index] = prev
-      index = Index
-      return [dataSet, index]
-    })
+  const changeSlide = (e) => {
+    if(e.target !== deleteIcon.current){
+      setCanvasData(prev => {
+        let [dataSet, index] = prev
+        index = Index
+        return [dataSet, index]
+      })
+    }
   }
   const handleDelete = () => {
     setCanvasData(prev => {
       let [dataSet, index] = prev
       dataSet.splice(Index, 1)
+      if(index !== 0){
+        index --
+      }
+      console.log('Index is',index);
       return [dataSet, index]
     })
-  }
-  const handleDrag = e => {
-    e.dataTransfer.setData("slide",Index)
   }
   useEffect(() => {
     setWidth(sideCanvas.current.clientWidth)
@@ -41,10 +45,6 @@ function SidePartComponent ({ Index }) {
   }, [canvasData, width])
   return (
     <div
-      draggable
-      onDrag={handleDrag}
-      // onDragEnter={(e)=>console.log(e.target)}
-      onDragLeave={e => console.log(e.target)}
       className='w-[80%] shadow-md shadow-[#0000003b] bg-contain bg-no-repeat cursor-pointer shrink-0 relative rounded-lg overflow-hidden mb-2'
       style={{ height: `${(700 / (window.innerWidth - 400)) * width}px` }}
       ref={sideCanvas}
@@ -56,6 +56,7 @@ function SidePartComponent ({ Index }) {
         <div className='absolute w-full flex justify-between items-center p-2 text-slate-500 bg-[#0000000e]'>
           <p>Slide {Index + 1}</p>
           <img
+            ref={deleteIcon}
             src='https://cdn-icons-png.flaticon.com/512/1214/1214428.png'
             className='h-4'
             alt=''

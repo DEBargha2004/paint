@@ -1,6 +1,4 @@
-import DomToImage from 'dom-to-image'
-import html2canvas from 'html2canvas'
-import { lineHeight } from '../assets/Tools'
+import { lineHeight } from "../assets/Tools";
 export const print_MultilineText = (
   fontHeight,
   ctx,
@@ -12,29 +10,24 @@ export const print_MultilineText = (
     fontHeight,
     fontSize,
     lineHeight[inputBoxInfo.lineHeightIndex] * fontSize
-  )
-  const TextArray = inputBoxInfo.value.split('\n')
+  );
+  let sumOfTextHeight = 0;
+  const currentLineHeight = lineHeight[inputBoxInfo.lineHeightIndex] * fontSize;
+  const TextArray = inputBoxInfo.value.split("\n");
   for (let i = 0; i < TextArray.length; i++) {
+    const currentTextDimensions = ctx.measureText(TextArray[i]);
+    const currentTextHeight =
+      currentTextDimensions.actualBoundingBoxAscent +
+      currentTextDimensions.actualBoundingBoxDescent;
+    sumOfTextHeight += currentTextHeight;
     console.log(
-      inputBoxInfo.y,
-      inputBoxInfo.y +
-        (i + 1) *
-          (fontHeight + lineHeight[inputBoxInfo.lineHeightIndex] * fontSize)
-    )
+      i * (lineHeight[inputBoxInfo.lineHeightIndex] * fontSize),
+      sumOfTextHeight
+    );
     ctx.fillText(
       TextArray[i],
       inputBoxInfo.x,
-      inputBoxInfo.y +
-        (i + 1) *
-          (fontHeight + lineHeight[inputBoxInfo.lineHeightIndex] * fontSize)
-    )
+      inputBoxInfo.y + (i + 1) * 0.64 * currentLineHeight
+    );
   }
-
-  // DomToImage.toPng(document.querySelector('html'))
-  //   .then(url => console.log(url))
-  //   .catch(e => console.log(e))
-
-  // html2canvas(InputBox.current)
-  //   .then(e => console.log(e.toDataURL('image/png')))
-  //   .catch(e => console.log(e))
-}
+};
