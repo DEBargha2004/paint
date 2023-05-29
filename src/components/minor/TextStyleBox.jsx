@@ -1,7 +1,8 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import Appstate from '../../hooks/appstate'
-import { fontStyles, lineHeight } from '../../assets/Tools'
+import { Alignment, fontStyles, lineHeight } from '../../assets/Tools'
 import TextStyleBoxComponent from './TextStyleBoxComponent'
+import Aligner from './Aligner'
 
 function TextStyleBox () {
   const {
@@ -23,14 +24,19 @@ function TextStyleBox () {
           list={fontStyles}
           stateKey='fontFamilyIndex'
           value={fontStyles[fontFamilyIndex].split(',')[0]}
+          min_width={190}
         />
         <TextStyleBoxComponent
           list={lineHeight}
           stateKey='lineHeightIndex'
           value={lineHeight[lineHeightIndex]}
+          min_width = {30}
         />
-        {/* <FontFamily />
-        <LineHeight /> */}
+        {
+          Alignment.map((item,index)=>(
+            <Aligner key={index} {...item} />
+          ))
+        }
       </div>
     </div>
   ) : null

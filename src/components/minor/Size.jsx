@@ -62,7 +62,7 @@ function Size () {
         </div>
         <ToolBoxTitle>Size</ToolBoxTitle>
         {showList ? (
-          <div className='absolute bottom-[-20px] text-black w-fit p-4 rounded-lg  bg-white border-[1px] border-[#00000036]'>
+          <div className='absolute bottom-[-10px] text-black w-fit p-4 rounded-lg bg-white border-[1px] border-[#00000036]'>
             <input
               type='range'
               max={max}

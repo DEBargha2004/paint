@@ -11,9 +11,7 @@
   },
   "dependencies": {
     "chroma-js": "^2.4.2",
-    "dom-to-image": "^2.6.0",
     "framer-motion": "^10.12.12",
-    "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-color": "^2.19.3",

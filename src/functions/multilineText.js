@@ -1,4 +1,13 @@
-import { lineHeight } from "../assets/Tools";
+import { Alignment, lineHeight } from "../assets/Tools";
+const xalignPos = (alignment,inputBoxWidth) =>{
+  if(alignment === 'left'){
+    return 0
+  }else if(alignment === 'center'){
+    return inputBoxWidth/2
+  }else if(alignment === 'right'){
+    return inputBoxWidth
+  }
+}
 export const print_MultilineText = (
   fontHeight,
   ctx,
@@ -6,28 +15,23 @@ export const print_MultilineText = (
   fontSize,
   InputBox
 ) => {
-  console.log(
-    fontHeight,
-    fontSize,
-    lineHeight[inputBoxInfo.lineHeightIndex] * fontSize
-  );
-  let sumOfTextHeight = 0;
+  let sumOfLineHeight = 0;
   const currentLineHeight = lineHeight[inputBoxInfo.lineHeightIndex] * fontSize;
   const TextArray = inputBoxInfo.value.split("\n");
   for (let i = 0; i < TextArray.length; i++) {
     const currentTextDimensions = ctx.measureText(TextArray[i]);
     const currentTextHeight =
       currentTextDimensions.actualBoundingBoxAscent +
-      currentTextDimensions.actualBoundingBoxDescent;
-    sumOfTextHeight += currentTextHeight;
-    console.log(
-      i * (lineHeight[inputBoxInfo.lineHeightIndex] * fontSize),
-      sumOfTextHeight
-    );
-    ctx.fillText(
+      Math.abs(currentTextDimensions.actualBoundingBoxDescent);
+      const textPaddingY = (currentLineHeight-currentTextHeight)/2
+    
+      console.log(InputBox.current.offsetWidth);
+    
+      ctx.fillText(
       TextArray[i],
-      inputBoxInfo.x,
-      inputBoxInfo.y + (i + 1) * 0.64 * currentLineHeight
+      inputBoxInfo.x + xalignPos(Alignment[inputBoxInfo.alignmentIndex].align,InputBox.current.offsetWidth),
+      inputBoxInfo.y +textPaddingY+ sumOfLineHeight
     );
+    sumOfLineHeight += currentLineHeight;
   }
 };

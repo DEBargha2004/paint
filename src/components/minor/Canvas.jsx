@@ -5,7 +5,7 @@ import chroma from "chroma-js";
 import { position } from "../../functions/position";
 import { textSize } from "../../functions/textSize";
 import { print_MultilineText } from "../../functions/multilineText";
-import { fontStyles, lineHeight } from "../../assets/Tools";
+import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
 
 const Canvas = () => {
   const {
@@ -121,24 +121,26 @@ const Canvas = () => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (selected === 104) {
-      const fontSize = Number(selectedStyle.size) + 4;
-      ctx.font = `${fontSize * 0.95}px ${
+      const fontSize = Number(selectedStyle.size);
+      ctx.font = `${fontSize}px ${
         fontStyles[inputBoxInfo.fontFamilyIndex]
       }`;
       ctx.fillStyle = rgba(selectedStyle.color);
       const textDimensions = ctx.measureText(text);
-
       const textHeight =
         textDimensions.actualBoundingBoxAscent +
         textDimensions.actualBoundingBoxDescent;
       const textPosX = offsetX;
       const textPosY = inputBoxInfo.y + (3 / 2) * textHeight; //
       const textTextPosY = inputBoxInfo.value;
+      ctx.textBaseline = 'top'
+      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align
       setInputBoxInfo((prev) => ({
         ...prev,
         visible: !prev.visible,
         x: offsetX,
         y: offsetY,
+
       }));
       InputBox.current.focus();
       inputBoxInfo.value &&
@@ -151,15 +153,6 @@ const Canvas = () => {
           InputBox
         );
       setInputBoxInfo((prev) => ({ ...prev, value: "" }));
-      // const fabricCanvas = new fabric.Canvas(canvas)
-      // const fabricTextbox = new fabric.Textbox('Hello World',{
-      //   left : 100,
-      //   top: 100,
-      //   width:200,
-      //   fontSize:16,
-      //   hasControls:false
-      // })
-      // fabricCanvas.sendToBack(fabricTextbox)
     } else {
       setInputBoxInfo((prev) => ({ ...prev, visible: false }));
     }
@@ -188,7 +181,6 @@ const Canvas = () => {
     inputBoxInfo.value,
   ]);
   useEffect(() => {
-    console.log(dataSet, index);
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     dataSet[index]
@@ -222,7 +214,7 @@ const Canvas = () => {
         onClick={handleClick}
       />
       <textarea
-        className="absolute bg-transparent text-center border-[0.5px] outline-none border-dashed border-[black] overflow-hidden"
+        className="absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden"
         value={inputBoxInfo.value}
         style={{
           top: inputBoxInfo.y,
@@ -233,6 +225,7 @@ const Canvas = () => {
           color: rgba(selectedStyle.color),
           fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
           lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
+          textAlign:Alignment[inputBoxInfo.alignmentIndex].align
         }}
         ref={InputBox}
         onChange={handleInputBoxChange}

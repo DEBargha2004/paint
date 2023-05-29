@@ -40,7 +40,7 @@ function Brush () {
               onClick={() => setShowList(prev => !prev)}
             />
             {showList ? (
-              <div className='absolute top-[108px] shadow-sm shadow-[#00000069] bg-white rounded-lg'>
+              <div className='absolute top-[108px] z-50 shadow-sm shadow-[#00000069] bg-white rounded-lg'>
                 {brushList.map((item, index) => (
                   <div
                     key={index}
