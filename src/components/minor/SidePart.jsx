@@ -31,7 +31,7 @@ function SidePart() {
     <div
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="h-[93%] mt-10 w-full flex flex-col items-center overflow-y-scroll"
+      className="h-[93%] z-0 mt-10 w-full flex flex-col items-center overflow-y-scroll"
     >
       {/* <SlideNumberMonitor /> */}
       <div className="flex justify-around items-center w-[90%] pb-5 mb-4 sticky top-0 z-20 bg-white">

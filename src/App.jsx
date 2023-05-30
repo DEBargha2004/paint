@@ -19,6 +19,7 @@ function App () {
     y: 0,
     value: '',
     textboxWidth: 0,
+    textboxHeight : 0,
     fontFamilyIndex : 0,
     lineHeightIndex : 0,
     alignmentIndex : 0,

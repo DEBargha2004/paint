@@ -19,8 +19,14 @@ const Canvas = () => {
   } = useContext(Appstate);
   const [isClicked, setIsClicked] = useState(false);
   const [[lastX, lastY], setLast] = useState([0, 0]);
+  const [{ grabbing, x, y }, setGrabbingData] = useState({
+    grabbing: false,
+    x: inputBoxInfo.x,
+    y: inputBoxInfo.y,
+  });
 
   const InputBox = useRef(null);
+  const InputBoxWrapper = useRef(null);
   let [dataSet, index] = canvasData;
   const handleMouseDown = (e) => {
     setIsClicked(true);
@@ -113,6 +119,13 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       }
     }
+    if (grabbing) {
+      setInputBoxInfo((prev) => ({
+        ...prev,
+        y: offsetY,
+        x: offsetX - inputBoxInfo.x,
+      }));
+    }
   };
 
   const handleClick = (e) => {
@@ -134,7 +147,7 @@ const Canvas = () => {
       const textPosY = inputBoxInfo.y + (3 / 2) * textHeight; //
       const textTextPosY = inputBoxInfo.value;
       ctx.textBaseline = "alphabetic";
-      ctx.lineCap = 'square'
+      ctx.lineCap = "square";
       ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
       setInputBoxInfo((prev) => ({
         ...prev,
@@ -167,9 +180,11 @@ const Canvas = () => {
     setInputBoxInfo((prev) => ({
       ...prev,
       value: e.target.value,
-      textboxWidth: e.target.clientWidth,
+      textboxWidth: e.target.offsetWidth,
+      textboxHeight: e.target.offsetHeight,
     }));
   };
+
   useEffect(() => {
     if (inputBoxInfo.value) {
       InputBox.current.style.height = `${InputBox.current.scrollHeight}px`;
@@ -191,12 +206,16 @@ const Canvas = () => {
   // so thats why when dataSet.length changes it
   // again gets triggered
   useEffect(() => {
-    const width = inputBoxInfo.value
-      ? textSize(inputBoxInfo.value, selectedStyle.size)
-      : selectedStyle.size;
-    setInputBoxInfo((prev) => ({ ...prev, width }));
-  }, [selectedStyle.size]);
-
+    const handleResizeTextarea = () => {
+      setInputBoxInfo((prev) => ({
+        ...prev,
+        textboxWidth: InputBox.current.offsetWidth,
+        textboxHeight: InputBox.current.offsetHeight,
+      }));
+    };
+    const textbox = document.querySelector("textarea");
+    new ResizeObserver(handleResizeTextarea).observe(textbox);
+  }, []);
   return (
     <div
       className={`relative overflow-hidden`}
@@ -213,28 +232,53 @@ const Canvas = () => {
         onMouseMove={handleMouseMove}
         onClick={handleClick}
       />
-      <textarea
-        className={`absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden underline-offset-8 ${
-          inputBoxInfo.bold && "font-bold"
-        } ${inputBoxInfo.italic && "italic"}`}
-        value={inputBoxInfo.value}
+      <div
+        ref={InputBoxWrapper}
+        className="absolute"
         style={{
-          textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
-            inputBoxInfo.strikethrough ? "line-through" : ""
-          }`,
           top: inputBoxInfo.y,
           left: inputBoxInfo.x,
-          fontSize: `${selectedStyle.size}px`,
-          resize: "both",
           display: selected === 104 && inputBoxInfo.visible ? "block" : "none",
-          color: rgba(selectedStyle.color),
-          fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
-          lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
-          textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
+          width: inputBoxInfo.textboxWidth,
+          height: inputBoxInfo.textboxHeight,
         }}
-        ref={InputBox}
-        onChange={handleInputBoxChange}
-      />
+      >
+        <textarea
+          id="textbox"
+          className={`absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden underline-offset-8 ${
+            inputBoxInfo.bold && "font-bold"
+          } ${inputBoxInfo.italic && "italic"}`}
+          value={inputBoxInfo.value}
+          style={{
+            textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
+              inputBoxInfo.strikethrough ? "line-through" : ""
+            }`,
+            top: 0,
+            left: 0,
+            fontSize: `${selectedStyle.size}px`,
+            resize: "both",
+            display:
+              selected === 104 && inputBoxInfo.visible ? "block" : "none",
+            color: rgba(selectedStyle.color),
+            fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
+            lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
+            textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
+          }}
+          ref={InputBox}
+          onChange={handleInputBoxChange}
+        />
+        <div
+          className={`absolute ${
+            grabbing ? "cursor-grabbing" : "cursor-grab"
+          } h-4 w-4 bg-indigo-700 top-0 left-1/2 -translate-x-1/2 -translate-y-1/2`}
+          onMouseDown={() =>
+            setGrabbingData((prev) => ({ ...prev, grabbing: true }))
+          }
+          onMouseUp={() =>
+            setGrabbingData((prev) => ({ ...prev, grabbing: false }))
+          }
+        />
+      </div>
     </div>
   );
 };
