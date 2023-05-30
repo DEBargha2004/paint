@@ -1,20 +1,20 @@
 import { useContext } from "react";
 import Appstate from "../../hooks/appstate";
 
-function Aligner({ url, align, alignmentId }) {
+function TextDeco({ url, decoration, decorationId }) {
   const {
-    inputBoxInfo: { alignmentIndex },
+    inputBoxInfo,
     setInputBoxInfo,
   } = useContext(Appstate);
   return (
     <div
       className={`${
-        alignmentIndex === alignmentId
+        inputBoxInfo[decoration]
           ? "bg-[#005eff5f]"
           : "hover:bg-[#005eff34]"
       } transition-all flex h-10 p-2 rounded-md mr-4`}
       onClick={() =>
-        setInputBoxInfo((prev) => ({ ...prev, alignmentIndex: alignmentId }))
+        setInputBoxInfo((prev) => ({ ...prev, [decoration] : !prev[decoration]}))
       }
     >
       <img src={url} alt="" />
@@ -22,4 +22,4 @@ function Aligner({ url, align, alignmentId }) {
   );
 }
 
-export default Aligner;
+export default TextDeco;

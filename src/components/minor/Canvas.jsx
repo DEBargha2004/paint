@@ -122,9 +122,9 @@ const Canvas = () => {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (selected === 104) {
       const fontSize = Number(selectedStyle.size);
-      ctx.font = `${fontSize}px ${
-        fontStyles[inputBoxInfo.fontFamilyIndex]
-      }`;
+      ctx.font = `${inputBoxInfo.bold ? "bold" : ""} ${
+        inputBoxInfo.italic ? "italic" : ""
+      } ${fontSize}px ${fontStyles[inputBoxInfo.fontFamilyIndex]} `;
       ctx.fillStyle = rgba(selectedStyle.color);
       const textDimensions = ctx.measureText(text);
       const textHeight =
@@ -133,14 +133,14 @@ const Canvas = () => {
       const textPosX = offsetX;
       const textPosY = inputBoxInfo.y + (3 / 2) * textHeight; //
       const textTextPosY = inputBoxInfo.value;
-      ctx.textBaseline = 'top'
-      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align
+      ctx.textBaseline = "alphabetic";
+      ctx.lineCap = 'square'
+      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
       setInputBoxInfo((prev) => ({
         ...prev,
         visible: !prev.visible,
         x: offsetX,
         y: offsetY,
-
       }));
       InputBox.current.focus();
       inputBoxInfo.value &&
@@ -149,7 +149,7 @@ const Canvas = () => {
           textHeight,
           ctx,
           inputBoxInfo,
-          selectedStyle.size,
+          selectedStyle,
           InputBox
         );
       setInputBoxInfo((prev) => ({ ...prev, value: "" }));
@@ -214,9 +214,14 @@ const Canvas = () => {
         onClick={handleClick}
       />
       <textarea
-        className="absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden"
+        className={`absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden underline-offset-8 ${
+          inputBoxInfo.bold && "font-bold"
+        } ${inputBoxInfo.italic && "italic"}`}
         value={inputBoxInfo.value}
         style={{
+          textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
+            inputBoxInfo.strikethrough ? "line-through" : ""
+          }`,
           top: inputBoxInfo.y,
           left: inputBoxInfo.x,
           fontSize: `${selectedStyle.size}px`,
@@ -225,7 +230,7 @@ const Canvas = () => {
           color: rgba(selectedStyle.color),
           fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
           lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
-          textAlign:Alignment[inputBoxInfo.alignmentIndex].align
+          textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
         }}
         ref={InputBox}
         onChange={handleInputBoxChange}

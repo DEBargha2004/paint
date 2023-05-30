@@ -21,7 +21,8 @@ function App () {
     textboxWidth: 0,
     fontFamilyIndex : 0,
     lineHeightIndex : 0,
-    alignmentIndex : 0
+    alignmentIndex : 0,
+    textDecoIndex : null
   })
   useEffect(()=>{
     if(selected === 104){

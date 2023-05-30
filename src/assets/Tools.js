@@ -197,3 +197,26 @@ export const Alignment = [
     alignmentId: 2,
   },
 ];
+
+export const textDecoration = [
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/114/114304.png',
+    decoration : 'bold',
+    decorationId : 0
+  },
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/5774/5774772.png',
+    decoration : 'italic',
+    decorationId : 1
+  },
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/565/565709.png',
+    decoration : 'underline',
+    decorationId : 2
+  },
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/1828/1828076.png',
+    decoration : 'strikethrough',
+    decorationId : 3
+  }
+]
