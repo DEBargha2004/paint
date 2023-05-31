@@ -6,6 +6,7 @@ import { position } from "../../functions/position";
 import { textSize } from "../../functions/textSize";
 import { print_MultilineText } from "../../functions/multilineText";
 import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
+import Draggable from "react-draggable";
 
 const Canvas = () => {
   const {
@@ -17,16 +18,22 @@ const Canvas = () => {
     inputBoxInfo,
     setInputBoxInfo,
   } = useContext(Appstate);
+
   const [isClicked, setIsClicked] = useState(false);
   const [[lastX, lastY], setLast] = useState([0, 0]);
-  const [{ grabbing, x, y }, setGrabbingData] = useState({
-    grabbing: false,
-    x: inputBoxInfo.x,
-    y: inputBoxInfo.y,
+  const [resizingData, setResizingData] = useState({
+    initialX: null,
+    initialY: null,
+  });
+
+  const resizingDataRef = useRef({
+    initialX: null,
+    initialY: null,
   });
 
   const InputBox = useRef(null);
-  const InputBoxWrapper = useRef(null);
+  const isVisible = useRef(false);
+  const resizing = useRef(false);
   let [dataSet, index] = canvasData;
   const handleMouseDown = (e) => {
     setIsClicked(true);
@@ -86,7 +93,6 @@ const Canvas = () => {
         ctx.stroke();
 
         for (let i = 0; i < density; i++) {
-          console.log(i);
           const rectColor = selectedColor
             .brighten(1)
             .alpha((density / i) * 100);
@@ -119,13 +125,7 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       }
     }
-    if (grabbing) {
-      setInputBoxInfo((prev) => ({
-        ...prev,
-        y: offsetY,
-        x: offsetX - inputBoxInfo.x,
-      }));
-    }
+    // if(offsetX)
   };
 
   const handleClick = (e) => {
@@ -149,12 +149,14 @@ const Canvas = () => {
       ctx.textBaseline = "alphabetic";
       ctx.lineCap = "square";
       ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
+      console.log(offsetX, offsetY);
       setInputBoxInfo((prev) => ({
         ...prev,
         visible: !prev.visible,
         x: offsetX,
         y: offsetY,
       }));
+      isVisible.current = !isVisible.current;
       InputBox.current.focus();
       inputBoxInfo.value &&
         // ctx.fillText(text, inputBoxInfo.x, textPosY, inputBoxInfo.textboxWidth)
@@ -184,7 +186,24 @@ const Canvas = () => {
       textboxHeight: e.target.offsetHeight,
     }));
   };
-
+  const handleDrag = (e, ui) => {
+    const { x, y } = ui;
+    const { offsetX, offsetY } = e;
+    const { textboxWidth, textboxHeight } = inputBoxInfo;
+    console.log(textboxHeight - offsetY, textboxWidth - offsetX);
+    if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
+      setInputBoxInfo((prev) => ({ ...prev, x, y }));
+  };
+  const handleResizingMouseDown = (e) => {
+    resizing.current = true;
+    setResizingData((prev) => ({
+      ...prev,
+      initialX: e.nativeEvent.pageX,
+      initialY: e.nativeEvent.pageY,
+    }));
+    resizingDataRef.current.initialX = e.pageX;
+    resizingDataRef.current.initialY = e.pageY;
+  };
   useEffect(() => {
     if (inputBoxInfo.value) {
       InputBox.current.style.height = `${InputBox.current.scrollHeight}px`;
@@ -206,79 +225,104 @@ const Canvas = () => {
   // so thats why when dataSet.length changes it
   // again gets triggered
   useEffect(() => {
+    document.addEventListener("mousemove", (e) => {
+      if (resizing.current) {
+        const changeInX = e.pageX - resizingDataRef.current.initialX;
+        const changeInY = e.pageY - resizingDataRef.current.initialY;
+        const netWidth = inputBoxInfo.textboxWidth + changeInX;
+        const netHeight = inputBoxInfo.textboxHeight + changeInY;
+        console.log(
+          e.pageX,
+          resizingDataRef.current.initialX,
+          e.pageY,
+          resizingDataRef.current.initialY
+        );
+        setInputBoxInfo((prev) => ({
+          ...prev,
+          textboxWidth: netWidth,
+          textboxHeight: netHeight,
+        }));
+      }
+    });
+    document.addEventListener("mouseup", () => {
+      resizing.current = false;
+    });
     const handleResizeTextarea = () => {
-      setInputBoxInfo((prev) => ({
-        ...prev,
-        textboxWidth: InputBox.current.offsetWidth,
-        textboxHeight: InputBox.current.offsetHeight,
-      }));
+      if (isVisible.current) {
+        // to not set the height and width to 0 on
+        setInputBoxInfo((prev) => ({
+          // closing the textarea
+          ...prev,
+          textboxWidth: InputBox.current.offsetWidth,
+          textboxHeight: InputBox.current.offsetHeight,
+        }));
+      }
     };
-    const textbox = document.querySelector("textarea");
-    new ResizeObserver(handleResizeTextarea).observe(textbox);
-  }, []);
+    new ResizeObserver(handleResizeTextarea).observe(InputBox.current);
+  }, [resizingData.initialX, resizingData.initialY]);
   return (
     <div
       className={`relative overflow-hidden`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
     >
       <canvas
-        className="shadow-md shadow-[#0000004b]"
+        className={`shadow-md shadow-[#0000004b] }`}
         height={700}
         width={window.innerWidth - 400}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseOut}
         onMouseEnter={handleMouseEnter}
-        onMouseMove={handleMouseMove}
+        onMouseMove={(e) => {
+          handleMouseMove(e);
+        }}
         onClick={handleClick}
       />
-      <div
-        ref={InputBoxWrapper}
-        className="absolute"
-        style={{
-          top: inputBoxInfo.y,
-          left: inputBoxInfo.x,
-          display: selected === 104 && inputBoxInfo.visible ? "block" : "none",
-          width: inputBoxInfo.textboxWidth,
-          height: inputBoxInfo.textboxHeight,
-        }}
+      <Draggable
+        position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
+        onDrag={handleDrag}
+        cancel="#resizer"
       >
-        <textarea
-          id="textbox"
-          className={`absolute bg-transparent border-[0.5px] outline-none border-dashed border-[black] overflow-hidden underline-offset-8 ${
-            inputBoxInfo.bold && "font-bold"
-          } ${inputBoxInfo.italic && "italic"}`}
-          value={inputBoxInfo.value}
-          style={{
-            textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
-              inputBoxInfo.strikethrough ? "line-through" : ""
-            }`,
-            top: 0,
-            left: 0,
-            fontSize: `${selectedStyle.size}px`,
-            resize: "both",
-            display:
-              selected === 104 && inputBoxInfo.visible ? "block" : "none",
-            color: rgba(selectedStyle.color),
-            fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
-            lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
-            textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
-          }}
-          ref={InputBox}
-          onChange={handleInputBoxChange}
-        />
         <div
-          className={`absolute ${
-            grabbing ? "cursor-grabbing" : "cursor-grab"
-          } h-4 w-4 bg-indigo-700 top-0 left-1/2 -translate-x-1/2 -translate-y-1/2`}
-          onMouseDown={() =>
-            setGrabbingData((prev) => ({ ...prev, grabbing: true }))
-          }
-          onMouseUp={() =>
-            setGrabbingData((prev) => ({ ...prev, grabbing: false }))
-          }
-        />
-      </div>
+          className="absolute top-0 left-0"
+          style={{
+            height: `${inputBoxInfo.textboxHeight}px`,
+            width: `${inputBoxInfo.textboxWidth}px`,
+          }}
+        >
+          <textarea
+            id="textbox"
+            className={`absolute bg-transparent border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
+              inputBoxInfo.bold && "font-bold"
+            } ${inputBoxInfo.italic && "italic"}`}
+            value={inputBoxInfo.value}
+            style={{
+              display:
+                selected === 104 && inputBoxInfo.visible ? "block" : "none",
+              width: `${inputBoxInfo.textboxWidth || 300}px`,
+              height: `${inputBoxInfo.textboxHeight || 100}px`,
+              textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
+                inputBoxInfo.strikethrough ? "line-through" : ""
+              }`,
+              fontSize: `${selectedStyle.size}px`,
+              resize: "both",
+              color: rgba(selectedStyle.color),
+              fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
+              lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
+              textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
+            }}
+            ref={InputBox}
+            onChange={handleInputBoxChange}
+          />
+          <div
+            id="resizer"
+            className={`absolute w-5 h-5 right-0 bottom-0 cursor-nwse-resize ${
+              inputBoxInfo.visible ? "block" : "hidden"
+            }`}
+            onMouseDown={handleResizingMouseDown}
+          />
+        </div>
+      </Draggable>
     </div>
   );
 };

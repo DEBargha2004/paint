@@ -44,7 +44,6 @@ export const print_MultilineText = (
     const textAscent = currentTextDimensions.actualBoundingBoxAscent;
     const lineWidth = 0.1 * selectedStyle.size;
     const lineLength = currentTextDimensions.width;
-    const verticalPosStrikeThrough = textAscent * 0.6;
 
     ctx.fillText(
       TextArray[i],
