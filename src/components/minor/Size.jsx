@@ -16,8 +16,8 @@ function Size () {
     if (!selected) return
 
     const maxRange = () => {
-      if (selected === '201a' || selected === '201d') {
-        return 16
+      if (selected === '201a') {
+        return 4
       } else if (selected === '201b') {
         return 1
       } else if (selected === '201c') {
@@ -26,6 +26,8 @@ function Size () {
         return 4
       } else if (selected === 103 || selected === 104) {
         return 100
+      }else if(selected === '201d'){
+        return 16
       }
     }
     setMax(maxRange)

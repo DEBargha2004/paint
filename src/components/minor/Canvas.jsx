@@ -84,7 +84,7 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       } else if (selected === "201a") {
         const selectedColor = chroma(rgba(selectedStyle.color));
-        const strokeColor = selectedColor.brighten(4).alpha(0.2);
+        const strokeColor = selectedColor.brighten(3);
         const density = 10;
         ctx.strokeStyle = strokeColor.hex();
         ctx.beginPath();
@@ -92,19 +92,19 @@ const Canvas = () => {
         ctx.lineTo(offsetX, offsetY);
         ctx.stroke();
 
-        for (let i = 0; i < density; i++) {
-          const rectColor = selectedColor
-            .brighten(1)
-            .alpha((density / i) * 100);
-          ctx.fillStyle = rectColor.hex();
-          const rectX =
-            offsetX + position((Math.random() * selectedStyle.size) / 2);
-          const rectY =
-            offsetY + position((Math.random() * selectedStyle.size) / 2);
-          const rectLen = density / 4;
-          const rectWid = density / 4;
-          ctx.fillRect(rectX, rectY, rectWid, rectLen);
-        }
+        // for (let i = 0; i < density; i++) {
+        //   const rectColor = selectedColor
+        //     .brighten(1)
+        //     .alpha((density / i) * 100);
+        //   ctx.fillStyle = rectColor.hex();
+        //   const rectX =
+        //     offsetX + position((Math.random() * selectedStyle.size) / 2);
+        //   const rectY =
+        //     offsetY + position((Math.random() * selectedStyle.size) / 2);
+        //   const rectLen = density / 4;
+        //   const rectWid = density / 4;
+        //   ctx.fillRect(rectX, rectY, rectWid, rectLen);
+        // }
 
         setLast([offsetX, offsetY]);
       } else if (selected === "201d") {
@@ -125,7 +125,7 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       }
     }
-    // if(offsetX)
+    
   };
 
   const handleClick = (e) => {
@@ -143,9 +143,6 @@ const Canvas = () => {
       const textHeight =
         textDimensions.actualBoundingBoxAscent +
         textDimensions.actualBoundingBoxDescent;
-      const textPosX = offsetX;
-      const textPosY = inputBoxInfo.y + (3 / 2) * textHeight; //
-      const textTextPosY = inputBoxInfo.value;
       ctx.textBaseline = "alphabetic";
       ctx.lineCap = "square";
       ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
@@ -157,9 +154,9 @@ const Canvas = () => {
         y: offsetY,
       }));
       isVisible.current = !isVisible.current;
-      InputBox.current.focus();
+      inputBoxInfo.visible ? InputBox.current.focus() : null;
       inputBoxInfo.value &&
-        // ctx.fillText(text, inputBoxInfo.x, textPosY, inputBoxInfo.textboxWidth)
+        
         print_MultilineText(
           textHeight,
           ctx,
@@ -182,8 +179,6 @@ const Canvas = () => {
     setInputBoxInfo((prev) => ({
       ...prev,
       value: e.target.value,
-      textboxWidth: e.target.offsetWidth,
-      textboxHeight: e.target.offsetHeight,
     }));
   };
   const handleDrag = (e, ui) => {
@@ -204,8 +199,9 @@ const Canvas = () => {
     resizingDataRef.current.initialX = e.pageX;
     resizingDataRef.current.initialY = e.pageY;
   };
+
   useEffect(() => {
-    if (inputBoxInfo.value) {
+    if (inputBoxInfo.value && InputBox.current) {
       InputBox.current.style.height = `${InputBox.current.scrollHeight}px`;
     }
   }, [
@@ -231,12 +227,6 @@ const Canvas = () => {
         const changeInY = e.pageY - resizingDataRef.current.initialY;
         const netWidth = inputBoxInfo.textboxWidth + changeInX;
         const netHeight = inputBoxInfo.textboxHeight + changeInY;
-        console.log(
-          e.pageX,
-          resizingDataRef.current.initialX,
-          e.pageY,
-          resizingDataRef.current.initialY
-        );
         setInputBoxInfo((prev) => ({
           ...prev,
           textboxWidth: netWidth,
@@ -248,8 +238,9 @@ const Canvas = () => {
       resizing.current = false;
     });
     const handleResizeTextarea = () => {
-      if (isVisible.current) {
+      if (inputBoxInfo.visible && InputBox.current) {
         // to not set the height and width to 0 on
+        console.log(InputBox.current);
         setInputBoxInfo((prev) => ({
           // closing the textarea
           ...prev,
@@ -258,8 +249,15 @@ const Canvas = () => {
         }));
       }
     };
-    new ResizeObserver(handleResizeTextarea).observe(InputBox.current);
-  }, [resizingData.initialX, resizingData.initialY]);
+    const textbox = document.querySelector("textarea");
+    inputBoxInfo.visible && console.log("input box is now visible");
+    inputBoxInfo.visible
+      ? new ResizeObserver(handleResizeTextarea).observe(textbox)
+      : null;
+  }, [resizingData.initialX, resizingData.initialY, inputBoxInfo.visible]);
+  useEffect(() => {
+    setInputBoxInfo((prev) => ({ ...prev, visible: false }));
+  }, [selected]);
   return (
     <div
       className={`relative overflow-hidden`}
@@ -278,51 +276,53 @@ const Canvas = () => {
         }}
         onClick={handleClick}
       />
-      <Draggable
-        position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
-        onDrag={handleDrag}
-        cancel="#resizer"
-      >
-        <div
-          className="absolute top-0 left-0"
-          style={{
-            height: `${inputBoxInfo.textboxHeight}px`,
-            width: `${inputBoxInfo.textboxWidth}px`,
-          }}
+      {inputBoxInfo.visible && (
+        <Draggable
+          position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
+          onDrag={handleDrag}
+          cancel={`${inputBoxInfo.drag ? `#resizer` : `#resizer,#textbox`}`}
         >
-          <textarea
-            id="textbox"
-            className={`absolute bg-transparent border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
-              inputBoxInfo.bold && "font-bold"
-            } ${inputBoxInfo.italic && "italic"}`}
-            value={inputBoxInfo.value}
-            style={{
-              display:
-                selected === 104 && inputBoxInfo.visible ? "block" : "none",
-              width: `${inputBoxInfo.textboxWidth || 300}px`,
-              height: `${inputBoxInfo.textboxHeight || 100}px`,
-              textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
-                inputBoxInfo.strikethrough ? "line-through" : ""
-              }`,
-              fontSize: `${selectedStyle.size}px`,
-              resize: "both",
-              color: rgba(selectedStyle.color),
-              fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
-              lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
-              textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
-            }}
-            ref={InputBox}
-            onChange={handleInputBoxChange}
-          />
           <div
-            id="resizer"
-            className={`absolute w-5 h-5 right-0 bottom-0 cursor-nwse-resize ${
-              inputBoxInfo.visible ? "block" : "hidden"
-            }`}
-            onMouseDown={handleResizingMouseDown}
-          />
-        </div>
-      </Draggable>
+            className="absolute top-0 left-0"
+            style={{
+              height: `${inputBoxInfo.textboxHeight}px`,
+              width: `${inputBoxInfo.textboxWidth}px`,
+            }}
+          >
+            <textarea
+              id="textbox"
+              className={`absolute bg-transparent border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
+                inputBoxInfo.bold && "font-bold"
+              } ${inputBoxInfo.italic && "italic"}`}
+              value={inputBoxInfo.value}
+              style={{
+                display:
+                  selected === 104 && inputBoxInfo.visible ? "block" : "none",
+                width: `${inputBoxInfo.textboxWidth || 300}px`,
+                height: `${inputBoxInfo.textboxHeight || 100}px`,
+                textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
+                  inputBoxInfo.strikethrough ? "line-through" : ""
+                }`,
+                fontSize: `${selectedStyle.size}px`,
+                resize: "both",
+                color: rgba(selectedStyle.color),
+                fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
+                lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
+                textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
+              }}
+              ref={InputBox}
+              onChange={handleInputBoxChange}
+            />
+            <div
+              id="resizer"
+              className={`absolute w-5 h-5 right-0 bottom-0 cursor-nwse-resize ${
+                inputBoxInfo.visible ? "block" : "hidden"
+              }`}
+              onMouseDown={handleResizingMouseDown}
+            />
+          </div>
+        </Draggable>
+      )}
     </div>
   );
 };

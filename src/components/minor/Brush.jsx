@@ -23,7 +23,7 @@ function Brush () {
           <div
             ref={brushRef}
             key={index}
-            className={`relative mt-6 p-1 ${
+            className={`relative w-fit mt-6 p-1 ${
               String(selected).includes('201') &&
               'rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col items-center justify-between'
             }`}
@@ -37,14 +37,17 @@ function Brush () {
               src='https://cdn-icons-png.flaticon.com/512/2985/2985150.png'
               className='h-5 mt-2 mx-auto px-4 py-1 hover:bg-slate-100'
               alt=''
-              onClick={() => setShowList(prev => !prev)}
+              onClick={() => {
+                setSelected(item.id)
+                setShowList(prev => !prev)
+              }}
             />
             {showList ? (
               <div className='absolute top-[108px] z-50 shadow-sm shadow-[#00000069] bg-white rounded-lg'>
                 {brushList.map((item, index) => (
                   <div
                     key={index}
-                    className='px-7 py-1 hover:bg-gray-200 cursor-pointer uppercase text-slate-500 font-medium'
+                    className='w-[150px] py-2 hover:bg-gray-200 cursor-pointer uppercase text-slate-500 font-medium flex justify-center items-center'
                     onClick={() => {
                       setSelected(item.id)
                       setShowList(false)
