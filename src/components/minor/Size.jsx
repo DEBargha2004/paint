@@ -19,7 +19,7 @@ function Size () {
       if (selected === '201a') {
         return 4
       } else if (selected === '201b') {
-        return 1
+        return 8
       } else if (selected === '201c') {
         return 1
       } else if (selected === 101) {

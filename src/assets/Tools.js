@@ -61,14 +61,14 @@ export const brushList = [
     id: "201a",
     name: "Natural Pencil",
   },
-  {
-    id: "201b",
-    name: "crayon",
-  },
-  {
-    id: "201c",
-    name: "pen",
-  },
+  // {
+  //   id: "201b",
+  //   name: "crayon",
+  // },
+  // {
+  //   id: "201c",
+  //   name: "pen",
+  // },
   {
     id: "201d",
     name: "spray",
@@ -225,3 +225,9 @@ export const textDecoration = [
     decorationId: 4,
   },
 ];
+export const addImage = [
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/10054/10054296.png',
+    id : 102
+  }
+]
