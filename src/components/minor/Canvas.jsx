@@ -123,6 +123,8 @@ const Canvas = () => {
         ...prev,
         height: imageHeight,
         width: imageWidth,
+        initialX: pageX,
+        initialY: pageY,
       }));
     }
     if (imageDataInDOM.enableDragging) {
@@ -213,27 +215,33 @@ const Canvas = () => {
       }));
     }
     if (selected === 102 && imageDataInDOM.enableResizing) {
-      if (imageDataInDOM.enableResizing) {
-        const { imageHeight, imageWidth } = ImageResizeDimensions({
-          pageX,
-          pageY,
-        });
-        setImageDataInDOM((prev) => ({
-          ...prev,
-          height: imageHeight,
-          width: imageWidth,
-        }));
-      }
+      const { imageHeight, imageWidth } = ImageResizeDimensions({
+        pageX,
+        pageY,
+      });
+      setImageDataInDOM((prev) => ({
+        ...prev,
+        height: imageHeight,
+        width: imageWidth,
+        initialX: pageX,
+        initialY: pageY,
+      }));
     }
   };
 
   const ImageResizeDimensions = ({ pageX, pageY }) => {
-    let imageHeight = pageY - imageDataInDOM.initialY - 3;
-    let imageWidth = pageX - imageDataInDOM.initialX - 3;
+    const { height, width } = imageDataInDOM;
+    let changeInImageHeight = pageY - imageDataInDOM.initialY;
+    let changeInImageWidth = pageX - imageDataInDOM.initialX;
 
-    imageHeight = imageHeight < 0 ? 0 : imageHeight;
-    imageWidth = imageWidth < 0 ? 0 : imageWidth;
-    return { imageHeight, imageWidth };
+    changeInImageHeight = !isNaN(height)
+      ? height + changeInImageHeight
+      : changeInImageHeight;
+    changeInImageWidth = !isNaN(width)
+      ? width + changeInImageWidth
+      : changeInImageWidth;
+
+    return { imageHeight: changeInImageHeight, imageWidth: changeInImageWidth };
   };
 
   const handleClick = (e) => {
@@ -428,11 +436,19 @@ const Canvas = () => {
 
   return (
     <div
-      className={`relative overflow-hidden`}
+      className={`relative overflow-hidden ${
+        !imageDataInDOM.height &&
+        !imageDataInDOM.width &&
+        selectedImageData.image
+          ? `cursor-crosshair`
+          : imageDataInDOM.enableResizing
+          ? `cursor-crosshair`
+          : `cursor-auto`
+      }`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
     >
       <canvas
-        className={`shadow-md shadow-[#0000004b] }`}
+        className={`shadow-md shadow-[#0000004b]`}
         height={700}
         width={window.innerWidth - 400}
         onClick={handleClick}
@@ -494,23 +510,51 @@ const Canvas = () => {
         <SelectedImageHover {...selectedImageData} />
       ) : null}
       {imageDataInDOM.height && imageDataInDOM.width ? (
-        <img
-          id="domimage"
-          src={selectedImageData.image}
-          className="absolute bg-cover"
+        <div
+          className="absolute z-10"
           style={{
             top: `${imageDataInDOM.top}px`,
             left: `${imageDataInDOM.left}px`,
             height: `${imageDataInDOM.height}px`,
             width: `${imageDataInDOM.width}px`,
-            userSelect: "none",
+            resize: "both",
           }}
-          onMouseDown={handleMouseDownOverDOMImage}
-          onMouseUp={handleMouseUpOverDOMImage}
-          onMouseMove={handleMouseMoveOverDOMImage}
-          onDragStart={(e) => e.preventDefault()}
-          alt=""
-        />
+        >
+          <img
+            id="domimage"
+            src={selectedImageData.image}
+            className="absolute bg-cover cursor-move top-0-left-0 z-0 w-full h-full"
+            style={{userSelect:'none'}}
+            onMouseDown={handleMouseDownOverDOMImage}
+            onMouseUp={handleMouseUpOverDOMImage}
+            onMouseMove={handleMouseMoveOverDOMImage}
+            onDragStart={(e) => e.preventDefault()}
+            alt=""
+          />
+          <div className="h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/8111/8111324.png"
+              alt=""
+              style={{userSelect:'none'}}
+              onMouseDown={(e) =>
+                setImageDataInDOM((prev) => ({
+                  ...prev,
+                  enableResizing: true,
+                  initialX: e.pageX,
+                  initialY: e.pageY,
+                }))
+              }
+              onMouseUp={() =>
+                setImageDataInDOM((prev) => ({
+                  ...prev,
+                  enableResizing: false,
+                }))
+              }
+              onDragStart={(e) => e.preventDefault()}
+              onMouseMove={handleMouseMove}
+            />
+          </div>
+        </div>
       ) : null}
     </div>
   );

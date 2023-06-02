@@ -10,6 +10,7 @@ function SelectedImageHover({ x, y, image }) {
     >
       <img
         className={`absolute top-0 left-0 h-full w-full bg-cover z-0 opacity-70`}
+        style={{userSelect:'none'}}
         src={image}
       />
     </div>

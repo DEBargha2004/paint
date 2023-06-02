@@ -1,19 +1,21 @@
-import React, { useState, useContext } from "react";
+import { useContext, useRef } from "react";
 import Appstate from "../../hooks/appstate";
 import ToolBoxWrapper from "./ToolBoxWrapper";
 import ToolBoxTitle from "./ToolBoxTitle";
 import { sketchToolsUrl, addImage } from "../../assets/Tools.js";
 
 function SketchTools() {
-  const { selected, setSelected,setSelectedImageData } = useContext(Appstate);
-  const handleImageChange = e => {
-    const file = e.target.files[0]
-    const fileReader = new FileReader()
+  const { selected, setSelected, setSelectedImageData } = useContext(Appstate);
+  const imageInputRef = useRef(null);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    const fileReader = new FileReader();
     fileReader.onload = () => {
-      setSelectedImageData(prev => ({...prev,image:fileReader.result}))
-    }
-    fileReader.readAsDataURL(file)
-  }
+      setSelectedImageData((prev) => ({ ...prev, image: fileReader.result }));
+      imageInputRef.current.value = null;
+    };
+    fileReader.readAsDataURL(file);
+  };
   return (
     <ToolBoxWrapper right>
       <div className="h-full flex flex-col items-center justify-between">
@@ -41,7 +43,14 @@ function SketchTools() {
               } hover:bg-slate-100`}
               onClick={() => setSelected(item.id)}
             >
-              <input type="file" hidden name="" id="select-img" onChange={handleImageChange} />
+              <input
+                ref={imageInputRef}
+                type="file"
+                hidden
+                name=""
+                id="select-img"
+                onChange={handleImageChange}
+              />
               <label htmlFor="select-img">
                 <img src={item.url} className="h-6" />
               </label>
