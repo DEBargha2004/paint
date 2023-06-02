@@ -6,7 +6,6 @@ import { position } from "../../functions/position";
 import { print_MultilineText } from "../../functions/multilineText";
 import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
 import Draggable from "react-draggable";
-import SelectedImageHover from "./selectedImageHover";
 
 const Canvas = () => {
   const {
@@ -18,8 +17,6 @@ const Canvas = () => {
     setUndoStack,
     inputBoxInfo,
     setInputBoxInfo,
-    selectedImageData,
-    setSelectedImageData,
   } = useContext(Appstate);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -34,21 +31,14 @@ const Canvas = () => {
     initialY: null,
   });
 
-  const [showImageInDOM, setShowImageInDOM] = useState(false);
-  const [resizeImageInDOM, setResizeImageInDOM] = useState(false);
-  const [imageDataInDOM, setImageDataInDOM] = useState({
-    height: 0,
-    width: 0,
-    x: null,
-    y: null,
-  });
-
   const InputBox = useRef(null);
   const isVisible = useRef(false);
   const resizing = useRef(false);
+
   let [dataSet, index] = canvasData;
+
   const handleMouseDown = (e) => {
-    console.log(e);
+    console.log("this is in handlemousedown of canvas");
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
     setIsMouseDown(true);
     setLast([offsetX, offsetY]);
@@ -57,13 +47,8 @@ const Canvas = () => {
       initialX: pageX,
       initialY: pageY,
     }));
-    setImageDataInDOM((prev) => ({ ...prev, x: offsetX, y: offsetY }));
-    if (selected === 102 && selectedImageData.image) {
-      setShowImageInDOM(true);
-      setResizeImageInDOM(true);
-      resizing.current = true;
-    }
   };
+
   const handleMouseUp = (e) => {
     setIsMouseDown(false);
     const canvas = document.querySelector("canvas");
@@ -74,16 +59,18 @@ const Canvas = () => {
       dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
       return [dataSet, index];
     });
-    console.log(e);
-    setSelected(null);
     resizing.current = false;
+    console.log(resizing);
   };
+
   const handleMouseOut = () => {
     setIsMouseDown(false);
   };
+
   const handleMouseEnter = () => {
     // setIsClicked(true)
   };
+
   const handleMouseMove = (e) => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -120,20 +107,6 @@ const Canvas = () => {
         ctx.lineTo(offsetX, offsetY);
         ctx.stroke();
 
-        // for (let i = 0; i < density; i++) {
-        //   const rectColor = selectedColor
-        //     .brighten(1)
-        //     .alpha((density / i) * 100);
-        //   ctx.fillStyle = rectColor.hex();
-        //   const rectX =
-        //     offsetX + position((Math.random() * selectedStyle.size) / 2);
-        //   const rectY =
-        //     offsetY + position((Math.random() * selectedStyle.size) / 2);
-        //   const rectLen = density / 4;
-        //   const rectWid = density / 4;
-        //   ctx.fillRect(rectX, rectY, rectWid, rectLen);
-        // }
-
         setLast([offsetX, offsetY]);
       } else if (selected === "201d") {
         // spray
@@ -152,13 +125,6 @@ const Canvas = () => {
 
         setLast([offsetX, offsetY]);
       }
-    }
-    if (selected === 102 && selectedImageData.image) {
-      setSelectedImageData((prev) => ({
-        ...prev,
-        x: offsetX + 10,
-        y: offsetY + 10,
-      }));
     }
   };
 
@@ -208,21 +174,31 @@ const Canvas = () => {
       return [dataSet, index];
     });
   };
+
+  // value addition of inputbox start
+
   const handleInputBoxChange = (e) => {
-    // textSize(e.target.value, selectedStyle.size)
     setInputBoxInfo((prev) => ({
       ...prev,
       value: e.target.value,
     }));
   };
+  //value addition of inputbox end
+
+  // dragging of textarea start
+
   const handleDrag = (e, ui) => {
     const { x, y } = ui;
     const { offsetX, offsetY } = e;
     const { textboxWidth, textboxHeight } = inputBoxInfo;
-    console.log(textboxHeight - offsetY, textboxWidth - offsetX);
     if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
       setInputBoxInfo((prev) => ({ ...prev, x, y }));
   };
+
+  // dragging of textarea end
+
+  // handling of resizing process for textarea start
+
   const handleResizingMouseDown = (e) => {
     resizing.current = true;
     setResizingData((prev) => ({
@@ -233,6 +209,12 @@ const Canvas = () => {
     resizingDataRef.current.initialX = e.pageX;
     resizingDataRef.current.initialY = e.pageY;
   };
+
+  const handleResizingMouseUp = () => {
+    resizing.current = false;
+  };
+
+  // handling of resizing process for textarea end
 
   useEffect(() => {
     if (inputBoxInfo.value && InputBox.current) {
@@ -255,118 +237,53 @@ const Canvas = () => {
   // so thats why when dataSet.length changes it
   // again gets triggered
 
+  useEffect(() => {
+    const documentMouseMoveHandler = (e) => {
+      if (resizing.current) {
+        const changeInX = e.pageX - resizingDataRef.current.initialX;
+        const changeInY = e.pageY - resizingDataRef.current.initialY;
+        const netWidth = inputBoxInfo.textboxWidth + changeInX;
+        const netHeight = inputBoxInfo.textboxHeight + changeInY;
+        setInputBoxInfo((prev) => ({
+          ...prev,
+          textboxWidth: netWidth,
+          textboxHeight: netHeight,
+        }));
+      }
+    };
+    const documentMouseUpHandler = () => {
+      resizing.current = false;
+      console.log(resizing);
+    };
+    document.addEventListener("mousemove", documentMouseMoveHandler);
+    document.addEventListener("mouseup", () => documentMouseUpHandler);
 
-  // useEffect(() => {
-  //   const documentMouseMoveHandler = (e) => {
-  //     if (resizing.current) {
-  //       const changeInX = e.pageX - resizingDataRef.current.initialX;
-  //       const changeInY = e.pageY - resizingDataRef.current.initialY;
-  //       const netWidth = inputBoxInfo.textboxWidth + changeInX;
-  //       const netHeight = inputBoxInfo.textboxHeight + changeInY;
-  //       setInputBoxInfo((prev) => ({
-  //         ...prev,
-  //         textboxWidth: netWidth,
-  //         textboxHeight: netHeight,
-  //       }));
-  //     }
-  //     if (resizing.current) {
-  //       const changeInX = e.pageX - resizingData.initialX;
-  //       const changeInY = e.pageY - resizingData.initialY;
-  //       const netWidth = imageDataInDOM.width + changeInX;
-  //       const netHeight = imageDataInDOM.height + changeInY;
-  //       setImageDataInDOM((prev) => ({
-  //         ...prev,
-  //         height: netHeight,
-  //         width: netWidth,
-  //       }));
-  //     }
-  //   };
-  //   const documentMouseUpHandler = () => {
-  //     resizing.current = false;
-  //   };
-  //   document.addEventListener("mousemove", documentMouseMoveHandler);
-  //   document.addEventListener("mouseup", () => documentMouseUpHandler);
+    const handleResizeTextarea = () => {
+      if (inputBoxInfo.visible && InputBox.current) {
+        // to not set the height and width to 0 on
+        setInputBoxInfo((prev) => ({
+          // closing the textarea
+          ...prev,
+          textboxWidth: InputBox.current.offsetWidth,
+          textboxHeight: InputBox.current.offsetHeight,
+        }));
+      }
+    };
+    const textbox = document.querySelector("textarea");
+    inputBoxInfo.visible && console.log("input box is now visible");
+    inputBoxInfo.visible
+      ? new ResizeObserver(handleResizeTextarea).observe(textbox)
+      : null;
 
-  //   const handleResizeTextarea = () => {
-  //     if (inputBoxInfo.visible && InputBox.current) {
-  //       // to not set the height and width to 0 on
-  //       console.log(InputBox.current);
-  //       setInputBoxInfo((prev) => ({
-  //         // closing the textarea
-  //         ...prev,
-  //         textboxWidth: InputBox.current.offsetWidth,
-  //         textboxHeight: InputBox.current.offsetHeight,
-  //       }));
-  //     }
-  //   };
-  //   const textbox = document.querySelector("textarea");
-  //   inputBoxInfo.visible && console.log("input box is now visible");
-  //   inputBoxInfo.visible
-  //     ? new ResizeObserver(handleResizeTextarea).observe(textbox)
-  //     : null;
+    return () => {
+      document.removeEventListener("mousemove", documentMouseMoveHandler);
+      document.removeEventListener("mouseup", documentMouseUpHandler);
+    };
+  }, [resizingData.initialX, resizingData.initialY, inputBoxInfo.visible]);
 
-  //   return () => {
-  //     document.removeEventListener("mousemove", documentMouseMoveHandler);
-  //     document.removeEventListener("mouseup", documentMouseUpHandler);
-  //   };
-  // }, [
-  //   resizingData.initialX,
-  //   resizingData.initialY,
-  //   inputBoxInfo.visible,
-  //   resizeImageInDOM,
-  // ]);
-
-  
   useEffect(() => {
     setInputBoxInfo((prev) => ({ ...prev, visible: false }));
   }, [selected]);
-
-  // useEffect(() => {
-  //   const canvas = document.querySelector("canvas");
-  //   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  //   ctx.clearRect(0,0,canvas.width,canvas.height)
-  //   const x = 300;
-  //   const y = 300;
-  //   const soft_density = 500;
-  //   const hard_density = 450;
-  //   const soft_densityAreaRadius = 15;
-  //   const hard_densityAreaRadius = 11;
-  //   const softCircleRadius = 2.5;
-  //   const hardCircleRadius = 1.6;
-  //   for (let i = 0; i < soft_density; i++) {
-  //     const centerX = x + position(Math.random() * soft_densityAreaRadius);
-  //     const centerY = y + position(Math.random() * soft_densityAreaRadius);
-  //     ctx.beginPath();
-  //     // ctx.arc(centerX, centerY, softCircleRadius, 0, 2 * Math.PI);
-  //     ctx.fillRect(centerX,centerY,softCircleRadius,softCircleRadius)
-  //     ctx.closePath();
-  //     const color = chroma(rgba(selectedStyle.color)).alpha(0.5)
-  //     ctx.fillStyle = color;
-  //     ctx.fill();
-  //   }
-  //   for (let i = 0; i < hard_density; i++) {
-  //     const centerX = x + position(Math.random() * soft_densityAreaRadius);
-  //     const centerY = y + position(Math.random() * hard_densityAreaRadius);
-  //     ctx.beginPath();
-  //     // ctx.arc(centerX, centerY, hardCircleRadius, 0, 2 * Math.PI);
-  //     ctx.fillRect(centerX,centerY,hardCircleRadius,hardCircleRadius)
-  //     ctx.closePath();
-  //     const color = chroma(rgba(selectedStyle.color)).brighten(0.1)
-  //     ctx.fillStyle = color;
-  //     ctx.fill();
-  //   }
-  //   for (let i = 0; i < 150; i++) {
-  //     const centerX = x + position(Math.random() * soft_densityAreaRadius);
-  //     const centerY = y + position(Math.random() * soft_densityAreaRadius);
-  //     ctx.beginPath();
-  //     // ctx.arc(centerX, centerY, hardCircleRadius, 0, 2 * Math.PI);
-  //     ctx.fillRect(centerX,centerY,hardCircleRadius,hardCircleRadius)
-  //     ctx.closePath();
-  //     const color = chroma(rgba(selectedStyle.color)).brighten(0.1)
-  //     ctx.fillStyle = color;
-  //     ctx.fill();
-  //   }
-  // }, [selectedStyle.color]);
 
   return (
     <div
@@ -427,26 +344,10 @@ const Canvas = () => {
                 inputBoxInfo.visible ? "block" : "hidden"
               }`}
               onMouseDown={handleResizingMouseDown}
+              onMouseUp={handleResizingMouseUp}
             />
           </div>
         </Draggable>
-      )}
-      {selected === 102 && selectedImageData.image && (
-        <SelectedImageHover {...selectedImageData} />
-      )}
-      {showImageInDOM && (
-        <img
-          src={selectedImageData.image}
-          alt=""
-          className="absolute"
-          style={{
-            height: `${imageDataInDOM.height}px`,
-            width: `${imageDataInDOM.width}px`,
-            top: `${imageDataInDOM.y}px`,
-            left: `${imageDataInDOM.x}px`,
-            backgroundSize: "cover",
-          }}
-        />
       )}
     </div>
   );
