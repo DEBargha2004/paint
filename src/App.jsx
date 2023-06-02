@@ -29,6 +29,20 @@ function App() {
     x: null,
     y: null,
   });
+  const [imageDataInDOM, setImageDataInDOM] = useState({
+    initialX: null,
+    initialY: null,
+    height: 0,
+    width: 0,
+    top: null,
+    left: null,
+    showOverview: false,
+    enableResizing: false,
+    enableDragging: false,
+    clicked: 0,
+    initialDraggingX: null,
+    initialDraggingY: null,
+  });
   useEffect(() => {
     if (selected === 104) {
       setSelectedStyle((prev) => ({ ...prev, size: 20 }));
@@ -53,7 +67,9 @@ function App() {
         inputBoxInfo,
         setInputBoxInfo,
         setSelectedImageData,
-        selectedImageData
+        selectedImageData,
+        imageDataInDOM,
+        setImageDataInDOM,
       }}
     >
       {/* <Navbar /> */}

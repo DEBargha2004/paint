@@ -6,6 +6,7 @@ import Size from '../minor/Size'
 import Color from '../minor/Color'
 import AddSlide from '../minor/AddSlide'
 import TextStyleBox from '../minor/TextStyleBox'
+import ImageStyleBox from '../minor/ImageStyleBox'
 
 function Tools () {
   const { inputBoxInfo, setInputBoxInfo, selected } = useContext(Appstate)
@@ -20,6 +21,7 @@ function Tools () {
         <Color />
       </div>
       <TextStyleBox />
+      <ImageStyleBox />
     </div>
   )
 }

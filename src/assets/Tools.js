@@ -227,7 +227,16 @@ export const textDecoration = [
 ];
 export const addImage = [
   {
-    url : 'https://cdn-icons-png.flaticon.com/512/10054/10054296.png',
-    id : 102
-  }
-]
+    url: "https://cdn-icons-png.flaticon.com/512/10054/10054296.png",
+    id: 102,
+  },
+];
+
+export const ImageDecoList = [
+  {
+    url: "https://cdn-icons-png.flaticon.com/512/4864/4864664.png",
+    id: "102b",
+    decoration: "boundary",
+    label: "B",
+  },
+];

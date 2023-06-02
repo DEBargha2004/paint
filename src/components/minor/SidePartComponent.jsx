@@ -39,7 +39,6 @@ function SidePartComponent({ Index }) {
     newCanvas.width = window.innerWidth - 400;
     const newCtx = newCanvas.getContext("2d");
     canvasData[0][Index] && newCtx.putImageData(canvasData[0][Index], 0, 0);
-
     const image = new Image();
     image.src = newCanvas.toDataURL();
     sideCanvas.current.style.backgroundImage = `url(${image.src})`;

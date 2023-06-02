@@ -20,6 +20,8 @@ const Canvas = () => {
     setInputBoxInfo,
     selectedImageData,
     setSelectedImageData,
+    imageDataInDOM,
+    setImageDataInDOM,
   } = useContext(Appstate);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -34,18 +36,6 @@ const Canvas = () => {
     initialY: null,
   });
 
-  const [imageDatainDOM, setImageDataInDOM] = useState({
-    initialX: null,
-    initialY: null,
-    height: 0,
-    width: 0,
-    top: null,
-    left: null,
-    showOverview: false,
-    enableResizing: false,
-    clicked: 0,
-  });
-
   const InputBox = useRef(null);
   const isVisible = useRef(false);
   const resizing = useRef(false);
@@ -53,7 +43,6 @@ const Canvas = () => {
   let [dataSet, index] = canvasData;
 
   const handleMouseDown = (e) => {
-    console.log("this is in handlemousedown of canvas");
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
     setIsMouseDown(true);
     setLast([offsetX, offsetY]);
@@ -63,7 +52,7 @@ const Canvas = () => {
       initialY: pageY,
     }));
     if (selected === 102 && selectedImageData.image) {
-      if (!imageDatainDOM.height && !imageDatainDOM.width) {
+      if (!imageDataInDOM.height && !imageDataInDOM.width) {
         setImageDataInDOM((prev) => ({
           ...prev,
           initialX: pageX,
@@ -80,12 +69,9 @@ const Canvas = () => {
     setIsMouseDown(false);
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    // setUndoStack(prev => [...prev,imageData])
-    setCanvasData((prev) => {
-      let [dataSet, index] = prev;
-      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      return [dataSet, index];
-    });
+
+    saveCanvasData({ canvas, ctx });
+
     resizing.current = false;
     if (selected === 102) {
       setImageDataInDOM((prev) => ({
@@ -96,12 +82,63 @@ const Canvas = () => {
     }
   };
 
-  const handleDOMImageMouseUp = () => {
+  const saveCanvasData = ({ canvas, ctx }) => {
+    setCanvasData((prev) => {
+      let [dataSet, index] = prev;
+      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      return [dataSet, index];
+    });
+  };
+
+  const handleMouseDownOverDOMImage = (e) => {
+    const { pageX, pageY } = e;
+    setImageDataInDOM((prev) => ({
+      ...prev,
+      enableDragging: true,
+      initialDraggingX: pageX,
+      initialDraggingY: pageY,
+    }));
+    return false;
+  };
+
+  const handleMouseUpOverDOMImage = () => {
     if (selected === 102) {
       setImageDataInDOM((prev) => ({
         ...prev,
         enableResizing: false,
         showOverview: false,
+        enableDragging: false,
+      }));
+    }
+  };
+
+  const handleMouseMoveOverDOMImage = (e) => {
+    const { pageX, pageY } = e;
+    if (imageDataInDOM.enableResizing) {
+      const { imageHeight, imageWidth } = ImageResizeDimensions({
+        pageX,
+        pageY,
+      });
+      setImageDataInDOM((prev) => ({
+        ...prev,
+        height: imageHeight,
+        width: imageWidth,
+      }));
+    }
+    if (imageDataInDOM.enableDragging) {
+      const { initialDraggingX, initialDraggingY, top, left } = imageDataInDOM;
+      const changeInX = pageX - initialDraggingX;
+      const changeInY = pageY - initialDraggingY;
+
+      const newOffsetX = left + changeInX;
+      const newOffsetY = top + changeInY;
+
+      setImageDataInDOM((prev) => ({
+        ...prev,
+        top: newOffsetY,
+        left: newOffsetX,
+        initialDraggingX: pageX,
+        initialDraggingY: pageY,
       }));
     }
   };
@@ -168,20 +205,19 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       }
     }
-    if (selected === 102 && imageDatainDOM.showOverview) {
+    if (selected === 102 && imageDataInDOM.showOverview) {
       setSelectedImageData((prev) => ({
         ...prev,
         x: offsetX + 5,
         y: offsetY + 5,
       }));
     }
-    if (selected === 102 && imageDatainDOM.enableResizing) {
-      if (imageDatainDOM.enableResizing) {
-        let imageHeight = pageY - imageDatainDOM.initialY - 3;
-        let imageWidth = pageX - imageDatainDOM.initialX - 3;
-
-        imageHeight = imageHeight < 0 ? 0 : imageHeight;
-        imageWidth = imageWidth < 0 ? 0 : imageWidth;
+    if (selected === 102 && imageDataInDOM.enableResizing) {
+      if (imageDataInDOM.enableResizing) {
+        const { imageHeight, imageWidth } = ImageResizeDimensions({
+          pageX,
+          pageY,
+        });
         setImageDataInDOM((prev) => ({
           ...prev,
           height: imageHeight,
@@ -191,9 +227,18 @@ const Canvas = () => {
     }
   };
 
+  const ImageResizeDimensions = ({ pageX, pageY }) => {
+    let imageHeight = pageY - imageDataInDOM.initialY - 3;
+    let imageWidth = pageX - imageDataInDOM.initialX - 3;
+
+    imageHeight = imageHeight < 0 ? 0 : imageHeight;
+    imageWidth = imageWidth < 0 ? 0 : imageWidth;
+    return { imageHeight, imageWidth };
+  };
+
   const handleClick = (e) => {
     const { offsetX, offsetY } = e.nativeEvent;
-    console.log("clicked in canvas", imageDatainDOM);
+    console.log("clicked in canvas");
     const text = inputBoxInfo.value;
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -207,10 +252,11 @@ const Canvas = () => {
       const textHeight =
         textDimensions.actualBoundingBoxAscent +
         textDimensions.actualBoundingBoxDescent;
+
       ctx.textBaseline = "alphabetic";
       ctx.lineCap = "square";
       ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
-      console.log(offsetX, offsetY);
+
       setInputBoxInfo((prev) => ({
         ...prev,
         visible: !prev.visible,
@@ -231,30 +277,28 @@ const Canvas = () => {
     } else {
       setInputBoxInfo((prev) => ({ ...prev, visible: false }));
     }
-    setCanvasData((prev) => {
-      let [dataSet, index] = prev;
-      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      return [dataSet, index];
-    });
 
     if (selected === 102 && selectedImageData.image) {
-      if (imageDatainDOM.clicked) {
+      if (imageDataInDOM.clicked) {
         const imageElement = new Image();
         imageElement.src = selectedImageData.image;
-        imageElement.onload = () =>
+        imageElement.onload = () => {
           ctx.drawImage(
             imageElement,
-            imageDatainDOM.left,
-            imageDatainDOM.top,
-            imageDatainDOM.width,
-            imageDatainDOM.height
+            imageDataInDOM.left,
+            imageDataInDOM.top,
+            imageDataInDOM.width,
+            imageDataInDOM.height
           );
-        setImageDataInDOM((prev) => ({
-          ...prev,
-          height: null,
-          width: null,
-          clicked: 0,
-        }));
+          setImageDataInDOM((prev) => ({
+            ...prev,
+            height: null,
+            width: null,
+            clicked: 0,
+          }));
+          setSelected(null);
+          saveCanvasData({ canvas, ctx });
+        };
       } else {
         setImageDataInDOM((prev) => ({ ...prev, clicked: prev.clicked + 1 }));
       }
@@ -446,21 +490,25 @@ const Canvas = () => {
           </div>
         </Draggable>
       )}
-      {selected === 102 && imageDatainDOM.showOverview ? (
+      {selected === 102 && imageDataInDOM.showOverview ? (
         <SelectedImageHover {...selectedImageData} />
       ) : null}
-      {imageDatainDOM.height && imageDatainDOM.width ? (
+      {imageDataInDOM.height && imageDataInDOM.width ? (
         <img
           id="domimage"
           src={selectedImageData.image}
           className="absolute bg-cover"
           style={{
-            top: `${imageDatainDOM.top}px`,
-            left: `${imageDatainDOM.left}px`,
-            height: `${imageDatainDOM.height}px`,
-            width: `${imageDatainDOM.width}px`,
+            top: `${imageDataInDOM.top}px`,
+            left: `${imageDataInDOM.left}px`,
+            height: `${imageDataInDOM.height}px`,
+            width: `${imageDataInDOM.width}px`,
+            userSelect: "none",
           }}
-          onMouseUp={handleDOMImageMouseUp}
+          onMouseDown={handleMouseDownOverDOMImage}
+          onMouseUp={handleMouseUpOverDOMImage}
+          onMouseMove={handleMouseMoveOverDOMImage}
+          onDragStart={(e) => e.preventDefault()}
           alt=""
         />
       ) : null}
