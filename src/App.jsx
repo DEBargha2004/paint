@@ -24,7 +24,11 @@ function App() {
     lineHeightIndex: 0,
     alignmentIndex: 0,
   });
-
+  const [selectedImageData, setSelectedImageData] = useState({
+    image: null,
+    x: null,
+    y: null,
+  });
   useEffect(() => {
     if (selected === 104) {
       setSelectedStyle((prev) => ({ ...prev, size: 20 }));
@@ -48,6 +52,8 @@ function App() {
         redoStack,
         inputBoxInfo,
         setInputBoxInfo,
+        setSelectedImageData,
+        selectedImageData
       }}
     >
       {/* <Navbar /> */}

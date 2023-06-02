@@ -6,6 +6,7 @@ import { position } from "../../functions/position";
 import { print_MultilineText } from "../../functions/multilineText";
 import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
 import Draggable from "react-draggable";
+import SelectedImageHover from "./SelectedImageHover";
 
 const Canvas = () => {
   const {
@@ -17,6 +18,8 @@ const Canvas = () => {
     setUndoStack,
     inputBoxInfo,
     setInputBoxInfo,
+    selectedImageData,
+    setSelectedImageData,
   } = useContext(Appstate);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -29,6 +32,18 @@ const Canvas = () => {
   const resizingDataRef = useRef({
     initialX: null,
     initialY: null,
+  });
+
+  const [imageDatainDOM, setImageDataInDOM] = useState({
+    initialX: null,
+    initialY: null,
+    height: 0,
+    width: 0,
+    top: null,
+    left: null,
+    showOverview: false,
+    enableResizing: false,
+    clicked: 0,
   });
 
   const InputBox = useRef(null);
@@ -47,6 +62,18 @@ const Canvas = () => {
       initialX: pageX,
       initialY: pageY,
     }));
+    if (selected === 102 && selectedImageData.image) {
+      if (!imageDatainDOM.height && !imageDatainDOM.width) {
+        setImageDataInDOM((prev) => ({
+          ...prev,
+          initialX: pageX,
+          initialY: pageY,
+          top: offsetY,
+          left: offsetX,
+          enableResizing: true,
+        }));
+      }
+    }
   };
 
   const handleMouseUp = (e) => {
@@ -60,7 +87,23 @@ const Canvas = () => {
       return [dataSet, index];
     });
     resizing.current = false;
-    console.log(resizing);
+    if (selected === 102) {
+      setImageDataInDOM((prev) => ({
+        ...prev,
+        enableResizing: false,
+        showOverview: false,
+      }));
+    }
+  };
+
+  const handleDOMImageMouseUp = () => {
+    if (selected === 102) {
+      setImageDataInDOM((prev) => ({
+        ...prev,
+        enableResizing: false,
+        showOverview: false,
+      }));
+    }
   };
 
   const handleMouseOut = () => {
@@ -74,7 +117,7 @@ const Canvas = () => {
   const handleMouseMove = (e) => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    const { offsetX, offsetY } = e.nativeEvent;
+    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
     ctx.lineWidth = selectedStyle.size;
     ctx.lineCap = "round";
 
@@ -100,7 +143,6 @@ const Canvas = () => {
       } else if (selected === "201a") {
         const selectedColor = chroma(rgba(selectedStyle.color));
         const strokeColor = selectedColor.brighten(1);
-        const density = 10;
         ctx.strokeStyle = strokeColor.hex();
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
@@ -126,11 +168,32 @@ const Canvas = () => {
         setLast([offsetX, offsetY]);
       }
     }
+    if (selected === 102 && imageDatainDOM.showOverview) {
+      setSelectedImageData((prev) => ({
+        ...prev,
+        x: offsetX + 5,
+        y: offsetY + 5,
+      }));
+    }
+    if (selected === 102 && imageDatainDOM.enableResizing) {
+      if (imageDatainDOM.enableResizing) {
+        let imageHeight = pageY - imageDatainDOM.initialY - 3;
+        let imageWidth = pageX - imageDatainDOM.initialX - 3;
+
+        imageHeight = imageHeight < 0 ? 0 : imageHeight;
+        imageWidth = imageWidth < 0 ? 0 : imageWidth;
+        setImageDataInDOM((prev) => ({
+          ...prev,
+          height: imageHeight,
+          width: imageWidth,
+        }));
+      }
+    }
   };
 
   const handleClick = (e) => {
     const { offsetX, offsetY } = e.nativeEvent;
-    console.log("clicked in canvas");
+    console.log("clicked in canvas", imageDatainDOM);
     const text = inputBoxInfo.value;
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -173,6 +236,29 @@ const Canvas = () => {
       dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
       return [dataSet, index];
     });
+
+    if (selected === 102 && selectedImageData.image) {
+      if (imageDatainDOM.clicked) {
+        const imageElement = new Image();
+        imageElement.src = selectedImageData.image;
+        imageElement.onload = () =>
+          ctx.drawImage(
+            imageElement,
+            imageDatainDOM.left,
+            imageDatainDOM.top,
+            imageDatainDOM.width,
+            imageDatainDOM.height
+          );
+        setImageDataInDOM((prev) => ({
+          ...prev,
+          height: null,
+          width: null,
+          clicked: 0,
+        }));
+      } else {
+        setImageDataInDOM((prev) => ({ ...prev, clicked: prev.clicked + 1 }));
+      }
+    }
   };
 
   // value addition of inputbox start
@@ -283,7 +369,18 @@ const Canvas = () => {
 
   useEffect(() => {
     setInputBoxInfo((prev) => ({ ...prev, visible: false }));
+    setSelectedImageData((prev) => ({
+      ...prev,
+      image: null,
+      x: null,
+      y: null,
+    }));
   }, [selected]);
+  useEffect(() => {
+    if (selectedImageData.image) {
+      setImageDataInDOM((prev) => ({ ...prev, showOverview: true }));
+    }
+  }, [selectedImageData.image]);
 
   return (
     <div
@@ -349,6 +446,24 @@ const Canvas = () => {
           </div>
         </Draggable>
       )}
+      {selected === 102 && imageDatainDOM.showOverview ? (
+        <SelectedImageHover {...selectedImageData} />
+      ) : null}
+      {imageDatainDOM.height && imageDatainDOM.width ? (
+        <img
+          id="domimage"
+          src={selectedImageData.image}
+          className="absolute bg-cover"
+          style={{
+            top: `${imageDatainDOM.top}px`,
+            left: `${imageDatainDOM.left}px`,
+            height: `${imageDatainDOM.height}px`,
+            width: `${imageDatainDOM.width}px`,
+          }}
+          onMouseUp={handleDOMImageMouseUp}
+          alt=""
+        />
+      ) : null}
     </div>
   );
 };

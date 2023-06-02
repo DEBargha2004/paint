@@ -225,3 +225,9 @@ export const textDecoration = [
     decorationId: 4,
   },
 ];
+export const addImage = [
+  {
+    url : 'https://cdn-icons-png.flaticon.com/512/10054/10054296.png',
+    id : 102
+  }
+]
