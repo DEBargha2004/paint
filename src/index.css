@@ -4,6 +4,7 @@
 
 html{
     perspective: 100;
+    user-select: none;
 }
 
 ::-webkit-scrollbar{

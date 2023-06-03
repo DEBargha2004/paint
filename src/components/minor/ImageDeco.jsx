@@ -48,7 +48,7 @@ function ImageDeco({ decoration, url, label, id }) {
           }}
           className="absolute bg-red p-2 -bottom-9 text-lg left-0 grid place-items-center shadow-lg shadow-[#001aff40] bg-white rounded-lg whitespace-nowrap w-fit text-slate-500"
         >
-          Click {label}
+          {label}
         </motion.div>
       )}
     </div>

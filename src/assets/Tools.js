@@ -237,6 +237,6 @@ export const ImageDecoList = [
     url: "https://cdn-icons-png.flaticon.com/512/4864/4864664.png",
     id: "102b",
     decoration: "boundary",
-    label: "B",
+    label: "Shift B",
   },
 ];

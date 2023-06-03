@@ -103,6 +103,7 @@ const Canvas = () => {
 
   const handleMouseUpOverDOMImage = () => {
     if (selected === 102) {
+      console.log("mouseup");
       setImageDataInDOM((prev) => ({
         ...prev,
         enableResizing: false,
@@ -114,6 +115,7 @@ const Canvas = () => {
 
   const handleMouseMoveOverDOMImage = (e) => {
     const { pageX, pageY } = e;
+    const canvas = document.querySelector("canvas");
     if (imageDataInDOM.enableResizing) {
       const { imageHeight, imageWidth } = ImageResizeDimensions({
         pageX,
@@ -132,8 +134,16 @@ const Canvas = () => {
       const changeInX = pageX - initialDraggingX;
       const changeInY = pageY - initialDraggingY;
 
-      const newOffsetX = left + changeInX;
-      const newOffsetY = top + changeInY;
+      let newOffsetX = left + changeInX;
+      let newOffsetY = top + changeInY;
+
+      const boundX = isBoundX(newOffsetX, imageDataInDOM.width, canvas);
+      const boundY = isBoundY(newOffsetY, imageDataInDOM.height, canvas);
+
+      newOffsetX = boundX ? newOffsetX : left;
+      newOffsetY = boundY ? newOffsetY : top;
+
+      console.log(boundX, boundY);
 
       setImageDataInDOM((prev) => ({
         ...prev,
@@ -145,12 +155,29 @@ const Canvas = () => {
     }
   };
 
-  const handleMouseOut = () => {
+  const handleMouseLeave = () => {
     setIsMouseDown(false);
+    setImageDataInDOM((prev) => ({ ...prev, enableDragging: false }));
+    console.log("mouse left canvas");
   };
 
   const handleMouseEnter = () => {
     // setIsClicked(true)
+  };
+
+  const isBoundX = (topLeftX, targetWidth, canvas) => {
+    if (topLeftX <= 0 || topLeftX + targetWidth >= canvas.width) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+  const isBoundY = (topLeftY, targetHeight, canvas) => {
+    if (topLeftY <= 0 || topLeftY + targetHeight >= canvas.height) {
+      return false;
+    } else {
+      return true;
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -215,10 +242,25 @@ const Canvas = () => {
       }));
     }
     if (selected === 102 && imageDataInDOM.enableResizing) {
-      const { imageHeight, imageWidth } = ImageResizeDimensions({
+      let { imageHeight, imageWidth } = ImageResizeDimensions({
         pageX,
         pageY,
       });
+
+      const boundX = isBoundX(
+        imageDataInDOM.left,
+        imageDataInDOM.width,
+        canvas
+      );
+      const boundY = isBoundY(
+        imageDataInDOM.top,
+        imageDataInDOM.height,
+        canvas
+      );
+
+      imageWidth = boundX ? imageWidth : imageDataInDOM.width;
+      imageHeight = boundY ? imageHeight : imageDataInDOM.height;
+
       setImageDataInDOM((prev) => ({
         ...prev,
         height: imageHeight,
@@ -446,6 +488,14 @@ const Canvas = () => {
           : `cursor-auto`
       }`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
+      onMouseLeave={() =>
+        setImageDataInDOM((prev) => ({
+          ...prev,
+          enableDragging: false,
+          enableResizing: false,
+          showOverview: false,
+        }))
+      }
     >
       <canvas
         className={`shadow-md shadow-[#0000004b]`}
@@ -454,7 +504,7 @@ const Canvas = () => {
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseOut}
+        onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
       />
@@ -524,7 +574,7 @@ const Canvas = () => {
             id="domimage"
             src={selectedImageData.image}
             className="absolute bg-cover cursor-move top-0-left-0 z-0 w-full h-full"
-            style={{userSelect:'none'}}
+            style={{ userSelect: "none" }}
             onMouseDown={handleMouseDownOverDOMImage}
             onMouseUp={handleMouseUpOverDOMImage}
             onMouseMove={handleMouseMoveOverDOMImage}
@@ -535,7 +585,7 @@ const Canvas = () => {
             <img
               src="https://cdn-icons-png.flaticon.com/512/8111/8111324.png"
               alt=""
-              style={{userSelect:'none'}}
+              style={{ userSelect: "none" }}
               onMouseDown={(e) =>
                 setImageDataInDOM((prev) => ({
                   ...prev,
