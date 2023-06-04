@@ -1,19 +1,20 @@
-import { useContext, useState } from 'react'
-import Appstate from '../../hooks/appstate'
-import SketchTools from '../minor/SketchTools'
-import Brush from '../minor/Brush'
-import Size from '../minor/Size'
-import Color from '../minor/Color'
-import AddSlide from '../minor/AddSlide'
-import TextStyleBox from '../minor/TextStyleBox'
-import ImageStyleBox from '../minor/ImageStyleBox'
+import { useContext, useState } from "react";
+import Appstate from "../../hooks/appstate";
+import SketchTools from "../minor/SketchTools";
+import Brush from "../minor/Brush";
+import Size from "../minor/Size";
+import Color from "../minor/Color";
+import AddSlide from "../minor/AddSlide";
+import TextStyleBox from "../minor/TextStyleBox";
+import ImageStyleBox from "../minor/ImageStyleBox";
 
-function Tools () {
-  const { inputBoxInfo, setInputBoxInfo, selected } = useContext(Appstate)
+function Tools() {
+  const { inputBoxInfo, setInputBoxInfo, selected } = useContext(Appstate);
+
 
   return (
-    <div className='relative'>
-      <div className='w-full p-2 flex sticky top-0 bg-white shadow-md shadow-[#00000015] z-10'>
+    <div className="relative">
+      <div className="w-full p-2 flex items-center sticky top-0 bg-white shadow-md shadow-[#00000015] z-10">
         <AddSlide />
         <SketchTools />
         <Brush />
@@ -23,7 +24,7 @@ function Tools () {
       <TextStyleBox />
       <ImageStyleBox />
     </div>
-  )
+  );
 }
 
-export default Tools
+export default Tools;

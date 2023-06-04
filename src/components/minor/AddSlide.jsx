@@ -14,8 +14,8 @@ function AddSlide () {
   }
   return (
     <ToolBoxWrapper right>
-      <div className='h-[calc(100%-24px)] w-full flex justify-center items-center'>
-        <div className='h-[60%] w-[50%] text-2xl text-slate-500 flex justify-center items-center shadow-sm shadow-[#0000004f] cursor-pointer transition-all active:scale-90' onClick={addNewSlide}>
+      <div className='h-[100px] w-full flex justify-center items-center'>
+        <div className='h-[70%] w-[50%] text-2xl text-slate-500 flex justify-center items-center shadow-sm shadow-[#0000004f] cursor-pointer transition-all active:scale-90' onClick={addNewSlide}>
           +
         </div>
       </div>

@@ -7,6 +7,7 @@ import { print_MultilineText } from "../../functions/multilineText";
 import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
 import Draggable from "react-draggable";
 import SelectedImageHover from "./SelectedImageHover";
+import resizer from "../../assets/resizer.png";
 
 const Canvas = () => {
   const {
@@ -140,8 +141,12 @@ const Canvas = () => {
       const boundX = isBoundX(newOffsetX, imageDataInDOM.width, canvas);
       const boundY = isBoundY(newOffsetY, imageDataInDOM.height, canvas);
 
-      newOffsetX = boundX ? newOffsetX : left;
-      newOffsetY = boundY ? newOffsetY : top;
+      console.log(boundX, boundY);
+
+      if (imageDataInDOM.boundary) {
+        newOffsetX = boundX ? newOffsetX : left;
+        newOffsetY = boundY ? newOffsetY : top;
+      }
 
       console.log(boundX, boundY);
 
@@ -258,8 +263,10 @@ const Canvas = () => {
         canvas
       );
 
-      imageWidth = boundX ? imageWidth : imageDataInDOM.width;
-      imageHeight = boundY ? imageHeight : imageDataInDOM.height;
+      if (imageDataInDOM.boundary) {
+        imageWidth = boundX ? imageWidth : imageDataInDOM.width;
+        imageHeight = boundY ? imageHeight : imageDataInDOM.height;
+      }
 
       setImageDataInDOM((prev) => ({
         ...prev,
@@ -583,7 +590,8 @@ const Canvas = () => {
           />
           <div className="h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize">
             <img
-              src="https://cdn-icons-png.flaticon.com/512/8111/8111324.png"
+              src={resizer}
+              className=""
               alt=""
               style={{ userSelect: "none" }}
               onMouseDown={(e) =>

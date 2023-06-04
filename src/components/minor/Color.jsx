@@ -18,7 +18,7 @@ function Color() {
   return (
     <>
       <ToolBoxWrapper>
-        <div className="flex mt-6">
+        <div className="flex">
           <div className="flex justify-center items-center">
             <div
               className="h-10 aspect-square rounded-full mx-3"
