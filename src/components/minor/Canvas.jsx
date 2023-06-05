@@ -23,6 +23,7 @@ const Canvas = () => {
     setSelectedImageData,
     imageDataInDOM,
     setImageDataInDOM,
+    isSwapped,setIsSwapped
   } = useContext(Appstate);
 
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -42,6 +43,8 @@ const Canvas = () => {
   const resizing = useRef(false);
 
   let [dataSet, index] = canvasData;
+
+  // const [copiedCanvasData,setCopiedCanvasData] = useState([...canvasData])
 
   const handleMouseDown = (e) => {
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
@@ -416,10 +419,12 @@ const Canvas = () => {
   useEffect(() => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    console.log(index);
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
       : ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, [index, dataSet.length]); // when selected slide changes index changes
+    setIsSwapped(false)
+  }, [index, dataSet,isSwapped]); // when selected slide changes index changes
   // when slide is deleted index is not changed
   // so thats why when dataSet.length changes it
   // again gets triggered

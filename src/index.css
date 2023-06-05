@@ -2,27 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-html{
-    perspective: 100;
-    user-select: none;
+html {
+  perspective: 100;
+  user-select: none;
 }
 
-::-webkit-scrollbar{
-    width: 5px;
+::-webkit-scrollbar {
+  width: 5px;
 }
 
-::-webkit-scrollbar-thumb{
-    background-color: darkgrey;
-    border-radius: 10px;
+::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  border-radius: 10px;
 }
 
-input[type="number"]::-webkit-inner-spin-button{
-    display: none;
+input[type='number']::-webkit-inner-spin-button {
+  display: none;
 }
-.slide-transition{
-    transition: all 0.5s ease ;
+.slide-transition {
+  transition: all 0.5s ease;
 }
 
-#domimage{
-    background-size: cover !important
+#domimage {
+  background-size: cover !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: white;
+}
+.sidepart:hover::-webkit-scrollbar-thumb {
+  background-color: darkgray;
 }
