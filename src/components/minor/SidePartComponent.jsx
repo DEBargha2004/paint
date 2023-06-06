@@ -2,9 +2,11 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import Appstate from '../../hooks/appstate'
 import { motion } from 'framer-motion'
 import { Draggable } from 'react-beautiful-dnd'
+import { addInUndoandRedo } from '../../functions/addInUndoandRedo'
 
 function SidePartComponent ({ Index }) {
-  const { canvasData, setCanvasData } = useContext(Appstate)
+  const { canvasData, setCanvasData, setUndoStack, setRedoStack } =
+    useContext(Appstate)
   const [isHovering, setIsHovering] = useState(false)
   const [width, setWidth] = useState(0)
   const sideCanvas = useRef(null)
@@ -33,6 +35,8 @@ function SidePartComponent ({ Index }) {
       console.log('Index is', index)
       return [dataSet, index]
     })
+
+    addInUndoandRedo({setRedoStack,setUndoStack,Index,action:'delete'})
   }
   const handleAddSlideBefore = () => {
     setCanvasData(prev => {
@@ -41,6 +45,7 @@ function SidePartComponent ({ Index }) {
       index = index + 1
       return [dataSet, index]
     })
+    addInUndoandRedo({setRedoStack,setUndoStack,Index,action:'add'})
   }
   useEffect(() => {
     setWidth(sideCanvas.current.clientWidth)
@@ -60,13 +65,15 @@ function SidePartComponent ({ Index }) {
     <Draggable draggableId={`Index${Index}`} index={Index}>
       {(provided, snapshot) => (
         <div
-          className={`w-[80%] relative mb-2 shrink-0 `}
+          className={`w-[80%] relative mb-2 shrink-0`}
           {...provided.dragHandleProps}
           {...provided.draggableProps}
           ref={provided.innerRef}
         >
           <div
-            className='w-full z-10 shadow-md bg-white shadow-[#0000003b] bg-contain  cursor-pointer relative rounded-lg overflow-hidden'
+            className={`w-full z-10 shadow-md shadow-[#0000003b] ${
+              snapshot.isDragging ? `bg-slate-50 scale-110` : `bg-white`
+            } bg-contain  cursor-pointer relative rounded-lg overflow-hidden transition-all`}
             ref={sideCanvas}
             onClick={changeSlide}
             onMouseEnter={() => setIsHovering(true)}

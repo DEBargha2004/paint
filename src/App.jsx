@@ -1,5 +1,5 @@
 import Appstate from './hooks/appstate'
-import Navbar from './components/minor/Navbar'
+import Navbar from './components/major/Navbar'
 import LowerBody from './components/major/LowerBody'
 import Tools from './components/major/Tools'
 import { useEffect, useState } from 'react'
@@ -11,8 +11,8 @@ function App () {
     size: 1
   })
   const [canvasData, setCanvasData] = useState([[null], 0])
-  const [undoStack, setUndoStack] = useState([])
-  const [redoStack, setRedoStack] = useState([])
+  const [undoStack, setUndoStack] = useState([[null]])
+  const [redoStack, setRedoStack] = useState([[null]])
   const [inputBoxInfo, setInputBoxInfo] = useState({
     visible: false,
     x: 0,
@@ -44,6 +44,7 @@ function App () {
     initialDraggingY: null
   })
   const [isSwapped, setIsSwapped] = useState(false)
+  const [hasUndoRedoPerformed,setHasUndoRedoPerformed] = useState(false)
   useEffect(() => {
     if (selected === 104) {
       setSelectedStyle(prev => ({ ...prev, size: 20 }))
@@ -72,10 +73,12 @@ function App () {
         imageDataInDOM,
         setImageDataInDOM,
         isSwapped,
-        setIsSwapped
+        setIsSwapped,
+        setHasUndoRedoPerformed,
+        hasUndoRedoPerformed
       }}
     >
-      {/* <Navbar /> */}
+      <Navbar />
       <Tools />
       <LowerBody />
     </Appstate.Provider>

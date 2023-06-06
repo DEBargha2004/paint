@@ -3,6 +3,7 @@ import Appstate from '../../hooks/appstate'
 import SidePartComponent from './SidePartComponent'
 import SlideNumberMonitor from './SlideNumberMonitor'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { addInUndoandRedo } from '../../functions/addInUndoandRedo'
 
 function SidePart () {
   const { canvasData, setCanvasData, setIsSwapped } = useContext(Appstate)
@@ -13,22 +14,22 @@ function SidePart () {
   const handleDrop = e => {
     console.log(e)
   }
-  const handleSwap = () => {
-    if (s1 && s2) {
-      let [slides] = canvasData
-      if (s1 <= slides.length && s2 <= slides.length) {
-        setCanvasData(prev => {
-          let [slides, index] = prev
-          let slide1 = slides[s1 - 1]
-          let slide2 = slides[s2 - 1]
-          slides[s1 - 1] = slide2
-          slides[s2 - 1] = slide1
-          return [slides, index]
-        })
-        setIsSwapped(true)
-      }
-    }
-  }
+  // const handleSwap = () => {
+  //   if (s1 && s2) {
+  //     let [slides] = canvasData
+  //     if (s1 <= slides.length && s2 <= slides.length) {
+  //       setCanvasData(prev => {
+  //         let [slides, index] = prev
+  //         let slide1 = slides[s1 - 1]
+  //         let slide2 = slides[s2 - 1]
+  //         slides[s1 - 1] = slide2
+  //         slides[s2 - 1] = slide1
+  //         return [slides, index]
+  //       })
+  //       setIsSwapped(true)
+  //     }
+  //   }
+  // }
 
   const handleDragEnd = result => {
     let { destination, source } = result
@@ -57,6 +58,14 @@ function SidePart () {
           : index
 
       return [dataSet, index]
+    })
+
+    addInUndoandRedo({
+      setRedoStack,
+      setUndoStack,
+      action: 'swap',
+      source: sourceIndex,
+      destination: destinationIndex
     })
   }
   return (

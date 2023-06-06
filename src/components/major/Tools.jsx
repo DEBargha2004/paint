@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import Appstate from '../../hooks/appstate'
 import SketchTools from '../minor/SketchTools'
 import Brush from '../minor/Brush'

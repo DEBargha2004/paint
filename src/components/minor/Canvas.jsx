@@ -1,13 +1,13 @@
-import { useState, useContext, useEffect, useRef } from "react";
-import Appstate from "../../hooks/appstate";
-import { rgba } from "../../functions/rgba";
-import chroma from "chroma-js";
-import { position } from "../../functions/position";
-import { print_MultilineText } from "../../functions/multilineText";
-import { Alignment, fontStyles, lineHeight } from "../../assets/Tools";
-import Draggable from "react-draggable";
-import SelectedImageHover from "./SelectedImageHover";
-import resizer from "../../assets/resizer.png";
+import { useState, useContext, useEffect, useRef } from 'react'
+import Appstate from '../../hooks/appstate'
+import { rgba } from '../../functions/rgba'
+import chroma from 'chroma-js'
+import { position } from '../../functions/position'
+import { print_MultilineText } from '../../functions/multilineText'
+import { Alignment, fontStyles, lineHeight } from '../../assets/Tools'
+import Draggable from 'react-draggable'
+import SelectedImageHover from './SelectedImageHover'
+import resizer from '../../assets/resizer.png'
 
 const Canvas = () => {
   const {
@@ -23,308 +23,304 @@ const Canvas = () => {
     setSelectedImageData,
     imageDataInDOM,
     setImageDataInDOM,
-    isSwapped,setIsSwapped
-  } = useContext(Appstate);
+    isSwapped,
+    setIsSwapped,
+    hasUndoRedoPerformed,
+    setHasUndoRedoPerformed
+  } = useContext(Appstate)
 
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [[lastX, lastY], setLast] = useState([0, 0]);
+  const [isMouseDown, setIsMouseDown] = useState(false)
+  const [[lastX, lastY], setLast] = useState([0, 0])
   const [resizingData, setResizingData] = useState({
     initialX: null,
-    initialY: null,
-  });
+    initialY: null
+  })
 
   const resizingDataRef = useRef({
     initialX: null,
-    initialY: null,
-  });
+    initialY: null
+  })
 
-  const InputBox = useRef(null);
-  const isVisible = useRef(false);
-  const resizing = useRef(false);
+  const InputBox = useRef(null)
+  const isVisible = useRef(false)
+  const resizing = useRef(false)
 
-  let [dataSet, index] = canvasData;
+  let [dataSet, index] = canvasData
 
   // const [copiedCanvasData,setCopiedCanvasData] = useState([...canvasData])
 
-  const handleMouseDown = (e) => {
-    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
-    setIsMouseDown(true);
-    setLast([offsetX, offsetY]);
-    setResizingData((prev) => ({
+  const handleMouseDown = e => {
+    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
+    setIsMouseDown(true)
+    setLast([offsetX, offsetY])
+    setResizingData(prev => ({
       ...prev,
       initialX: pageX,
-      initialY: pageY,
-    }));
+      initialY: pageY
+    }))
     if (selected === 102 && selectedImageData.image) {
       if (!imageDataInDOM.height && !imageDataInDOM.width) {
-        setImageDataInDOM((prev) => ({
+        setImageDataInDOM(prev => ({
           ...prev,
           initialX: pageX,
           initialY: pageY,
           top: offsetY,
           left: offsetX,
-          enableResizing: true,
-        }));
+          enableResizing: true
+        }))
       }
     }
-  };
+  }
 
-  const handleMouseUp = (e) => {
-    setIsMouseDown(false);
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const handleMouseUp = e => {
+    setIsMouseDown(false)
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
-    saveCanvasData({ canvas, ctx });
+    saveCanvasData({ canvas, ctx })
 
-    resizing.current = false;
+    resizing.current = false
     if (selected === 102) {
-      setImageDataInDOM((prev) => ({
+      setImageDataInDOM(prev => ({
         ...prev,
         enableResizing: false,
-        showOverview: false,
-      }));
+        showOverview: false
+      }))
     }
-  };
+  }
 
   const saveCanvasData = ({ canvas, ctx }) => {
-    setCanvasData((prev) => {
-      let [dataSet, index] = prev;
-      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      return [dataSet, index];
-    });
-  };
+    setCanvasData(prev => {
+      let [dataSet, index] = prev
+      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      return [dataSet, index]
+    })
 
-  const handleMouseDownOverDOMImage = (e) => {
-    const { pageX, pageY } = e;
-    setImageDataInDOM((prev) => ({
+    setUndoStack(prev => {
+      const currentIndex = canvasData[1]
+      prev[currentIndex].push(
+        ctx.getImageData(0, 0, canvas.width, canvas.height)
+      )
+      return [...prev]
+    })
+  }
+
+  const handleMouseDownOverDOMImage = e => {
+    const { pageX, pageY } = e
+    setImageDataInDOM(prev => ({
       ...prev,
       enableDragging: true,
       initialDraggingX: pageX,
-      initialDraggingY: pageY,
-    }));
-    return false;
-  };
+      initialDraggingY: pageY
+    }))
+    return false
+  }
 
   const handleMouseUpOverDOMImage = () => {
     if (selected === 102) {
-      console.log("mouseup");
-      setImageDataInDOM((prev) => ({
+      setImageDataInDOM(prev => ({
         ...prev,
         enableResizing: false,
         showOverview: false,
-        enableDragging: false,
-      }));
+        enableDragging: false
+      }))
     }
-  };
+  }
 
-  const handleMouseMoveOverDOMImage = (e) => {
-    const { pageX, pageY } = e;
-    const canvas = document.querySelector("canvas");
+  const handleMouseMoveOverDOMImage = e => {
+    const { pageX, pageY } = e
+    const canvas = document.querySelector('canvas')
     if (imageDataInDOM.enableResizing) {
       const { imageHeight, imageWidth } = ImageResizeDimensions({
         pageX,
-        pageY,
-      });
-      setImageDataInDOM((prev) => ({
+        pageY
+      })
+      setImageDataInDOM(prev => ({
         ...prev,
         height: imageHeight,
         width: imageWidth,
         initialX: pageX,
-        initialY: pageY,
-      }));
+        initialY: pageY
+      }))
     }
     if (imageDataInDOM.enableDragging) {
-      const { initialDraggingX, initialDraggingY, top, left } = imageDataInDOM;
-      const changeInX = pageX - initialDraggingX;
-      const changeInY = pageY - initialDraggingY;
+      const { initialDraggingX, initialDraggingY, top, left } = imageDataInDOM
+      const changeInX = pageX - initialDraggingX
+      const changeInY = pageY - initialDraggingY
 
-      let newOffsetX = left + changeInX;
-      let newOffsetY = top + changeInY;
+      let newOffsetX = left + changeInX
+      let newOffsetY = top + changeInY
 
-      const boundX = isBoundX(newOffsetX, imageDataInDOM.width, canvas);
-      const boundY = isBoundY(newOffsetY, imageDataInDOM.height, canvas);
-
-      console.log(boundX, boundY);
+      const boundX = isBoundX(newOffsetX, imageDataInDOM.width, canvas)
+      const boundY = isBoundY(newOffsetY, imageDataInDOM.height, canvas)
 
       if (imageDataInDOM.boundary) {
-        newOffsetX = boundX ? newOffsetX : left;
-        newOffsetY = boundY ? newOffsetY : top;
+        newOffsetX = boundX ? newOffsetX : left
+        newOffsetY = boundY ? newOffsetY : top
       }
 
-      console.log(boundX, boundY);
-
-      setImageDataInDOM((prev) => ({
+      setImageDataInDOM(prev => ({
         ...prev,
         top: newOffsetY,
         left: newOffsetX,
         initialDraggingX: pageX,
-        initialDraggingY: pageY,
-      }));
+        initialDraggingY: pageY
+      }))
     }
-  };
+  }
 
   const handleMouseLeave = () => {
-    setIsMouseDown(false);
-    setImageDataInDOM((prev) => ({ ...prev, enableDragging: false }));
-    console.log("mouse left canvas");
-  };
+    setIsMouseDown(false)
+    setImageDataInDOM(prev => ({ ...prev, enableDragging: false }))
+  }
 
   const handleMouseEnter = () => {
     // setIsClicked(true)
-  };
+  }
 
   const isBoundX = (topLeftX, targetWidth, canvas) => {
     if (topLeftX <= 0 || topLeftX + targetWidth >= canvas.width) {
-      return false;
+      return false
     } else {
-      return true;
+      return true
     }
-  };
+  }
   const isBoundY = (topLeftY, targetHeight, canvas) => {
     if (topLeftY <= 0 || topLeftY + targetHeight >= canvas.height) {
-      return false;
+      return false
     } else {
-      return true;
+      return true
     }
-  };
+  }
 
-  const handleMouseMove = (e) => {
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent;
-    ctx.lineWidth = selectedStyle.size;
-    ctx.lineCap = "round";
+  const handleMouseMove = e => {
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
+    ctx.lineWidth = selectedStyle.size
+    ctx.lineCap = 'round'
 
     if (isMouseDown) {
       if (selected === 101) {
-        ctx.strokeStyle = rgba(selectedStyle.color);
+        ctx.strokeStyle = rgba(selectedStyle.color)
 
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.stroke();
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
 
-        setLast([offsetX, offsetY]);
+        setLast([offsetX, offsetY])
       } else if (selected === 103) {
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = 'white'
 
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.stroke();
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
 
-        setLast([offsetX, offsetY]);
-      } else if (selected === "201a") {
-        const selectedColor = chroma(rgba(selectedStyle.color));
-        const strokeColor = selectedColor.brighten(1);
-        ctx.strokeStyle = strokeColor.hex();
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.stroke();
+        setLast([offsetX, offsetY])
+      } else if (selected === '201a') {
+        const selectedColor = chroma(rgba(selectedStyle.color))
+        const strokeColor = selectedColor.brighten(1)
+        ctx.strokeStyle = strokeColor.hex()
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
 
-        setLast([offsetX, offsetY]);
-      } else if (selected === "201d") {
+        setLast([offsetX, offsetY])
+      } else if (selected === '201d') {
         // spray
-        const density = 15;
-        ctx.fillStyle = rgba(selectedStyle.color);
+        const density = 15
+        ctx.fillStyle = rgba(selectedStyle.color)
 
         for (let i = 0; i < density; i++) {
           const rectX =
-            offsetX + position((Math.random() * selectedStyle.size) / 2);
+            offsetX + position((Math.random() * selectedStyle.size) / 2)
           const rectY =
-            offsetY + position((Math.random() * selectedStyle.size) / 2);
-          const rectLen = 1.4;
-          const rectWid = 1.4;
-          ctx.fillRect(rectX, rectY, rectWid, rectLen);
+            offsetY + position((Math.random() * selectedStyle.size) / 2)
+          const rectLen = 1.4
+          const rectWid = 1.4
+          ctx.fillRect(rectX, rectY, rectWid, rectLen)
         }
 
-        setLast([offsetX, offsetY]);
+        setLast([offsetX, offsetY])
       }
     }
     if (selected === 102 && imageDataInDOM.showOverview) {
-      setSelectedImageData((prev) => ({
+      setSelectedImageData(prev => ({
         ...prev,
         x: offsetX + 5,
-        y: offsetY + 5,
-      }));
+        y: offsetY + 5
+      }))
     }
     if (selected === 102 && imageDataInDOM.enableResizing) {
       let { imageHeight, imageWidth } = ImageResizeDimensions({
         pageX,
-        pageY,
-      });
+        pageY
+      })
 
-      const boundX = isBoundX(
-        imageDataInDOM.left,
-        imageDataInDOM.width,
-        canvas
-      );
-      const boundY = isBoundY(
-        imageDataInDOM.top,
-        imageDataInDOM.height,
-        canvas
-      );
+      const boundX = isBoundX(imageDataInDOM.left, imageDataInDOM.width, canvas)
+      const boundY = isBoundY(imageDataInDOM.top, imageDataInDOM.height, canvas)
 
       if (imageDataInDOM.boundary) {
-        imageWidth = boundX ? imageWidth : imageDataInDOM.width;
-        imageHeight = boundY ? imageHeight : imageDataInDOM.height;
+        imageWidth = boundX ? imageWidth : imageDataInDOM.width
+        imageHeight = boundY ? imageHeight : imageDataInDOM.height
       }
 
-      setImageDataInDOM((prev) => ({
+      setImageDataInDOM(prev => ({
         ...prev,
         height: imageHeight,
         width: imageWidth,
         initialX: pageX,
-        initialY: pageY,
-      }));
+        initialY: pageY
+      }))
     }
-  };
+  }
 
   const ImageResizeDimensions = ({ pageX, pageY }) => {
-    const { height, width } = imageDataInDOM;
-    let changeInImageHeight = pageY - imageDataInDOM.initialY;
-    let changeInImageWidth = pageX - imageDataInDOM.initialX;
+    const { height, width } = imageDataInDOM
+    let changeInImageHeight = pageY - imageDataInDOM.initialY
+    let changeInImageWidth = pageX - imageDataInDOM.initialX
 
     changeInImageHeight = !isNaN(height)
       ? height + changeInImageHeight
-      : changeInImageHeight;
+      : changeInImageHeight
     changeInImageWidth = !isNaN(width)
       ? width + changeInImageWidth
-      : changeInImageWidth;
+      : changeInImageWidth
 
-    return { imageHeight: changeInImageHeight, imageWidth: changeInImageWidth };
-  };
+    return { imageHeight: changeInImageHeight, imageWidth: changeInImageWidth }
+  }
 
-  const handleClick = (e) => {
-    const { offsetX, offsetY } = e.nativeEvent;
-    console.log("clicked in canvas");
-    const text = inputBoxInfo.value;
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const handleClick = e => {
+    const { offsetX, offsetY } = e.nativeEvent
+    const text = inputBoxInfo.value
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (selected === 104) {
-      const fontSize = Number(selectedStyle.size);
-      ctx.font = `${inputBoxInfo.bold ? "bold" : ""} ${
-        inputBoxInfo.italic ? "italic" : ""
-      } ${fontSize}px ${fontStyles[inputBoxInfo.fontFamilyIndex]} `;
-      ctx.fillStyle = rgba(selectedStyle.color);
-      const textDimensions = ctx.measureText(text);
+      const fontSize = Number(selectedStyle.size)
+      ctx.font = `${inputBoxInfo.bold ? 'bold' : ''} ${
+        inputBoxInfo.italic ? 'italic' : ''
+      } ${fontSize}px ${fontStyles[inputBoxInfo.fontFamilyIndex]} `
+      ctx.fillStyle = rgba(selectedStyle.color)
+      const textDimensions = ctx.measureText(text)
       const textHeight =
         textDimensions.actualBoundingBoxAscent +
-        textDimensions.actualBoundingBoxDescent;
+        textDimensions.actualBoundingBoxDescent
 
-      ctx.textBaseline = "alphabetic";
-      ctx.lineCap = "square";
-      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align;
+      ctx.textBaseline = 'alphabetic'
+      ctx.lineCap = 'square'
+      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align
 
-      setInputBoxInfo((prev) => ({
+      setInputBoxInfo(prev => ({
         ...prev,
         visible: !prev.visible,
         x: offsetX,
-        y: offsetY,
-      }));
-      isVisible.current = !isVisible.current;
-      inputBoxInfo.visible ? InputBox.current.focus() : null;
+        y: offsetY
+      }))
+      isVisible.current = !isVisible.current
+      inputBoxInfo.visible ? InputBox.current.focus() : null
       inputBoxInfo.value &&
         print_MultilineText(
           textHeight,
@@ -332,16 +328,16 @@ const Canvas = () => {
           inputBoxInfo,
           selectedStyle,
           InputBox
-        );
-      setInputBoxInfo((prev) => ({ ...prev, value: "" }));
+        )
+      setInputBoxInfo(prev => ({ ...prev, value: '' }))
     } else {
-      setInputBoxInfo((prev) => ({ ...prev, visible: false }));
+      setInputBoxInfo(prev => ({ ...prev, visible: false }))
     }
 
     if (selected === 102 && selectedImageData.image) {
       if (imageDataInDOM.clicked) {
-        const imageElement = new Image();
-        imageElement.src = selectedImageData.image;
+        const imageElement = new Image()
+        imageElement.src = selectedImageData.image
         imageElement.onload = () => {
           ctx.drawImage(
             imageElement,
@@ -349,144 +345,142 @@ const Canvas = () => {
             imageDataInDOM.top,
             imageDataInDOM.width,
             imageDataInDOM.height
-          );
-          setImageDataInDOM((prev) => ({
+          )
+          setImageDataInDOM(prev => ({
             ...prev,
             height: null,
             width: null,
-            clicked: 0,
-          }));
-          setSelected(null);
-          saveCanvasData({ canvas, ctx });
-        };
+            clicked: 0
+          }))
+          setSelected(null)
+          saveCanvasData({ canvas, ctx })
+        }
       } else {
-        setImageDataInDOM((prev) => ({ ...prev, clicked: prev.clicked + 1 }));
+        setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
     }
-  };
+  }
 
   // value addition of inputbox start
 
-  const handleInputBoxChange = (e) => {
-    setInputBoxInfo((prev) => ({
+  const handleInputBoxChange = e => {
+    setInputBoxInfo(prev => ({
       ...prev,
-      value: e.target.value,
-    }));
-  };
+      value: e.target.value
+    }))
+  }
   //value addition of inputbox end
 
   // dragging of textarea start
 
   const handleDrag = (e, ui) => {
-    const { x, y } = ui;
-    const { offsetX, offsetY } = e;
-    const { textboxWidth, textboxHeight } = inputBoxInfo;
+    const { x, y } = ui
+    const { offsetX, offsetY } = e
+    const { textboxWidth, textboxHeight } = inputBoxInfo
     if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
-      setInputBoxInfo((prev) => ({ ...prev, x, y }));
-  };
+      setInputBoxInfo(prev => ({ ...prev, x, y }))
+  }
 
   // dragging of textarea end
 
   // handling of resizing process for textarea start
 
-  const handleResizingMouseDown = (e) => {
-    resizing.current = true;
-    setResizingData((prev) => ({
+  const handleResizingMouseDown = e => {
+    resizing.current = true
+    setResizingData(prev => ({
       ...prev,
       initialX: e.nativeEvent.pageX,
-      initialY: e.nativeEvent.pageY,
-    }));
-    resizingDataRef.current.initialX = e.pageX;
-    resizingDataRef.current.initialY = e.pageY;
-  };
+      initialY: e.nativeEvent.pageY
+    }))
+    resizingDataRef.current.initialX = e.pageX
+    resizingDataRef.current.initialY = e.pageY
+  }
 
   const handleResizingMouseUp = () => {
-    resizing.current = false;
-  };
+    resizing.current = false
+  }
 
   // handling of resizing process for textarea end
 
   useEffect(() => {
     if (inputBoxInfo.value && InputBox.current) {
-      InputBox.current.style.height = `${InputBox.current.scrollHeight}px`;
+      InputBox.current.style.height = `${InputBox.current.scrollHeight}px`
     }
   }, [
     inputBoxInfo.fontFamilyIndex,
     inputBoxInfo.lineHeightIndex,
     selectedStyle.size,
-    inputBoxInfo.value,
-  ]);
+    inputBoxInfo.value
+  ])
   useEffect(() => {
-    const canvas = document.querySelector("canvas");
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    console.log(index);
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
-      : ctx.clearRect(0, 0, canvas.width, canvas.height);
+      : ctx.clearRect(0, 0, canvas.width, canvas.height)
     setIsSwapped(false)
-  }, [index, dataSet,isSwapped]); // when selected slide changes index changes
+    setHasUndoRedoPerformed(false)
+  }, [index, dataSet, isSwapped, hasUndoRedoPerformed]) // when selected slide changes index changes
   // when slide is deleted index is not changed
   // so thats why when dataSet.length changes it
   // again gets triggered
 
   useEffect(() => {
-    const documentMouseMoveHandler = (e) => {
+    const documentMouseMoveHandler = e => {
       if (resizing.current) {
-        const changeInX = e.pageX - resizingDataRef.current.initialX;
-        const changeInY = e.pageY - resizingDataRef.current.initialY;
-        const netWidth = inputBoxInfo.textboxWidth + changeInX;
-        const netHeight = inputBoxInfo.textboxHeight + changeInY;
-        setInputBoxInfo((prev) => ({
+        const changeInX = e.pageX - resizingDataRef.current.initialX
+        const changeInY = e.pageY - resizingDataRef.current.initialY
+        const netWidth = inputBoxInfo.textboxWidth + changeInX
+        const netHeight = inputBoxInfo.textboxHeight + changeInY
+        setInputBoxInfo(prev => ({
           ...prev,
           textboxWidth: netWidth,
-          textboxHeight: netHeight,
-        }));
+          textboxHeight: netHeight
+        }))
       }
-    };
+    }
     const documentMouseUpHandler = () => {
-      resizing.current = false;
-      console.log(resizing);
-    };
-    document.addEventListener("mousemove", documentMouseMoveHandler);
-    document.addEventListener("mouseup", () => documentMouseUpHandler);
+      resizing.current = false
+    }
+    document.addEventListener('mousemove', documentMouseMoveHandler)
+    document.addEventListener('mouseup', () => documentMouseUpHandler)
 
     const handleResizeTextarea = () => {
       if (inputBoxInfo.visible && InputBox.current) {
         // to not set the height and width to 0 on
-        setInputBoxInfo((prev) => ({
+        setInputBoxInfo(prev => ({
           // closing the textarea
           ...prev,
           textboxWidth: InputBox.current.offsetWidth,
-          textboxHeight: InputBox.current.offsetHeight,
-        }));
+          textboxHeight: InputBox.current.offsetHeight
+        }))
       }
-    };
-    const textbox = document.querySelector("textarea");
-    inputBoxInfo.visible && console.log("input box is now visible");
+    }
+    const textbox = document.querySelector('textarea')
     inputBoxInfo.visible
       ? new ResizeObserver(handleResizeTextarea).observe(textbox)
-      : null;
+      : null
 
     return () => {
-      document.removeEventListener("mousemove", documentMouseMoveHandler);
-      document.removeEventListener("mouseup", documentMouseUpHandler);
-    };
-  }, [resizingData.initialX, resizingData.initialY, inputBoxInfo.visible]);
+      document.removeEventListener('mousemove', documentMouseMoveHandler)
+      document.removeEventListener('mouseup', documentMouseUpHandler)
+    }
+  }, [resizingData.initialX, resizingData.initialY, inputBoxInfo.visible])
 
   useEffect(() => {
-    setInputBoxInfo((prev) => ({ ...prev, visible: false }));
-    setSelectedImageData((prev) => ({
+    setInputBoxInfo(prev => ({ ...prev, visible: false }))
+    setSelectedImageData(prev => ({
       ...prev,
       image: null,
       x: null,
-      y: null,
-    }));
-  }, [selected]);
+      y: null
+    }))
+  }, [selected])
   useEffect(() => {
     if (selectedImageData.image) {
-      setImageDataInDOM((prev) => ({ ...prev, showOverview: true }));
+      setImageDataInDOM(prev => ({ ...prev, showOverview: true }))
     }
-  }, [selectedImageData.image]);
+  }, [selectedImageData.image])
 
   return (
     <div
@@ -501,11 +495,11 @@ const Canvas = () => {
       }`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
       onMouseLeave={() =>
-        setImageDataInDOM((prev) => ({
+        setImageDataInDOM(prev => ({
           ...prev,
           enableDragging: false,
           enableResizing: false,
-          showOverview: false,
+          showOverview: false
         }))
       }
     >
@@ -527,40 +521,40 @@ const Canvas = () => {
           cancel={`${inputBoxInfo.drag ? `#resizer` : `#resizer,#textbox`}`}
         >
           <div
-            className="absolute top-0 left-0"
+            className='absolute top-0 left-0'
             style={{
               height: `${inputBoxInfo.textboxHeight}px`,
-              width: `${inputBoxInfo.textboxWidth}px`,
+              width: `${inputBoxInfo.textboxWidth}px`
             }}
           >
             <textarea
-              id="textbox"
+              id='textbox'
               className={`absolute bg-transparent border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
-                inputBoxInfo.bold && "font-bold"
-              } ${inputBoxInfo.italic && "italic"}`}
+                inputBoxInfo.bold && 'font-bold'
+              } ${inputBoxInfo.italic && 'italic'}`}
               value={inputBoxInfo.value}
               style={{
                 display:
-                  selected === 104 && inputBoxInfo.visible ? "block" : "none",
+                  selected === 104 && inputBoxInfo.visible ? 'block' : 'none',
                 width: `${inputBoxInfo.textboxWidth || 300}px`,
                 height: `${inputBoxInfo.textboxHeight || 100}px`,
-                textDecoration: `${inputBoxInfo.underline ? "underline" : ""} ${
-                  inputBoxInfo.strikethrough ? "line-through" : ""
+                textDecoration: `${inputBoxInfo.underline ? 'underline' : ''} ${
+                  inputBoxInfo.strikethrough ? 'line-through' : ''
                 }`,
                 fontSize: `${selectedStyle.size}px`,
-                resize: "both",
+                resize: 'both',
                 color: rgba(selectedStyle.color),
                 fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
                 lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
-                textAlign: Alignment[inputBoxInfo.alignmentIndex].align,
+                textAlign: Alignment[inputBoxInfo.alignmentIndex].align
               }}
               ref={InputBox}
               onChange={handleInputBoxChange}
             />
             <div
-              id="resizer"
+              id='resizer'
               className={`absolute w-5 h-5 right-0 bottom-0 cursor-nwse-resize ${
-                inputBoxInfo.visible ? "block" : "hidden"
+                inputBoxInfo.visible ? 'block' : 'hidden'
               }`}
               onMouseDown={handleResizingMouseDown}
               onMouseUp={handleResizingMouseUp}
@@ -573,53 +567,53 @@ const Canvas = () => {
       ) : null}
       {imageDataInDOM.height && imageDataInDOM.width ? (
         <div
-          className="absolute z-10"
+          className='absolute z-0'
           style={{
             top: `${imageDataInDOM.top}px`,
             left: `${imageDataInDOM.left}px`,
             height: `${imageDataInDOM.height}px`,
             width: `${imageDataInDOM.width}px`,
-            resize: "both",
+            resize: 'both'
           }}
         >
           <img
-            id="domimage"
+            id='domimage'
             src={selectedImageData.image}
-            className="absolute bg-cover cursor-move top-0-left-0 z-0 w-full h-full"
-            style={{ userSelect: "none" }}
+            className='absolute bg-cover cursor-move top-0-left-0 z-0 w-full h-full'
+            style={{ userSelect: 'none' }}
             onMouseDown={handleMouseDownOverDOMImage}
             onMouseUp={handleMouseUpOverDOMImage}
             onMouseMove={handleMouseMoveOverDOMImage}
-            onDragStart={(e) => e.preventDefault()}
-            alt=""
+            onDragStart={e => e.preventDefault()}
+            alt=''
           />
-          <div className="h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize">
+          <div className='h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize'>
             <img
               src={resizer}
-              className=""
-              alt=""
-              style={{ userSelect: "none" }}
-              onMouseDown={(e) =>
-                setImageDataInDOM((prev) => ({
+              className=''
+              alt=''
+              style={{ userSelect: 'none' }}
+              onMouseDown={e =>
+                setImageDataInDOM(prev => ({
                   ...prev,
                   enableResizing: true,
                   initialX: e.pageX,
-                  initialY: e.pageY,
+                  initialY: e.pageY
                 }))
               }
               onMouseUp={() =>
-                setImageDataInDOM((prev) => ({
+                setImageDataInDOM(prev => ({
                   ...prev,
-                  enableResizing: false,
+                  enableResizing: false
                 }))
               }
-              onDragStart={(e) => e.preventDefault()}
+              onDragStart={e => e.preventDefault()}
               onMouseMove={handleMouseMove}
             />
           </div>
         </div>
       ) : null}
     </div>
-  );
-};
-export default Canvas;
+  )
+}
+export default Canvas

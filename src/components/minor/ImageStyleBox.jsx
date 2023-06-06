@@ -10,6 +10,7 @@ function ImageStyleBox() {
     const handleKeyPress = (e) => {
       console.log(selected, e.key);
       if (selected === 102) {
+        console.log(e.key);
         if (e.key === "B") {
           setImageDataInDOM((prev) => ({ ...prev, boundary: !prev.boundary }));
         }
