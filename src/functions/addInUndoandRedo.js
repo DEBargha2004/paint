@@ -10,20 +10,20 @@ export function addInUndoandRedo ({
 }) {
   if (action === 'delete') {
     setUndoStack(prev => {
-      prev = prev.splice(Index, 1)
+      prev.splice(Index, 1)
       return [...prev]
     })
     setRedoStack(prev => {
-      prev = prev.splice(Index, 1)
+      prev.splice(Index, 1)
       return [...prev]
     })
   } else if (action === 'add') {
     setUndoStack(prev => {
-      prev = prev.splice(Index, 0, [null])
+      prev.splice(Index, 0, [null])
       return [...prev]
     })
     setRedoStack(prev => {
-      prev = prev.splice(Index, 0, [null])
+      prev.splice(Index, 0, [null])
       return [...prev]
     })
   } else if (action === 'swap') {

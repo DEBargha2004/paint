@@ -78,7 +78,7 @@ function App () {
         hasUndoRedoPerformed
       }}
     >
-      <Navbar />
+      {/* <Navbar /> */}
       <Tools />
       <LowerBody />
     </Appstate.Provider>

@@ -73,7 +73,7 @@ function SidePartComponent ({ Index }) {
           <div
             className={`w-full z-10 shadow-md shadow-[#0000003b] ${
               snapshot.isDragging ? `bg-slate-50 scale-110` : `bg-white`
-            } bg-contain  cursor-pointer relative rounded-lg overflow-hidden transition-all`}
+            } bg-cover  cursor-pointer relative rounded-lg overflow-hidden transition-all`}
             ref={sideCanvas}
             onClick={changeSlide}
             onMouseEnter={() => setIsHovering(true)}
