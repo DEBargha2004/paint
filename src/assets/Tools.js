@@ -3,10 +3,10 @@ export const sketchToolsUrl = [
     id: 101,
     url: "https://cdn-icons-png.flaticon.com/512/10473/10473628.png",
   },
-  // {
-  //   id: 102,
-  //   url: 'https://cdn-icons-png.flaticon.com/512/1959/1959717.png'
-  // },
+  {
+    id: 105,
+    url: 'https://cdn-icons-png.flaticon.com/512/1959/1959717.png'
+  },
   {
     id: 103,
     url: "https://cdn-icons-png.flaticon.com/512/2015/2015014.png",

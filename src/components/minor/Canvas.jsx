@@ -8,6 +8,7 @@ import { Alignment, fontStyles, lineHeight } from '../../assets/Tools'
 import Draggable from 'react-draggable'
 import SelectedImageHover from './SelectedImageHover'
 import resizer from '../../assets/resizer.png'
+import FloodFill from 'q-floodfill'
 
 const Canvas = () => {
   const {
@@ -358,6 +359,15 @@ const Canvas = () => {
       } else {
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
+    }
+    if (selected === 105) {
+      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const floodfill = new FloodFill(imageData)
+
+      floodfill.fill(rgba(selectedStyle.color),offsetX,offsetY,0)
+      
+      ctx.putImageData(floodfill.imageData, 0, 0)
+      saveCanvasData({ canvas, ctx })
     }
   }
 
