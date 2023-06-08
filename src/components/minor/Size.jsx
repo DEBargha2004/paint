@@ -23,7 +23,7 @@ function Size () {
       } else if (selected === '201c') {
         return 1
       } else if (selected === 101) {
-        return 4
+        return 16
       } else if (selected === 103 || selected === 104) {
         return 100
       }else if(selected === '201d'){

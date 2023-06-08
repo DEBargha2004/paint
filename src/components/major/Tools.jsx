@@ -12,8 +12,8 @@ function Tools () {
   const { inputBoxInfo, setInputBoxInfo, selected } = useContext(Appstate)
 
   return (
-    <div className='sticky top-0 z-10'>
-      <div className='w-full p-2 flex items-center bg-white shadow-md shadow-[#00000015]'>
+    <div className='z-10'>
+      <div className='w-full px-2 flex items-center bg-white shadow-md shadow-[#00000015]'>
         <AddSlide />
         <SketchTools />
         <Brush />

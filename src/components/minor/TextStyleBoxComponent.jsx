@@ -7,9 +7,9 @@ function TextStyleBoxComponent({ list, value, stateKey, min_width }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative mx-7">
+    <div className="relative mx-2">
       <div
-        className={`w-fit min-w-[${min_width}px] bg-white p-2 border-[1px] border-[#0000002d] rounded-md flex justify-between items-center`}
+        className={`min-w-[${min_width}px] bg-white p-2 border-[1px] border-[#0000002d] rounded-md flex justify-between items-center`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         {list ? (

@@ -18,6 +18,8 @@ const Canvas = () => {
     canvasData,
     setCanvasData,
     setUndoStack,
+    setRedoStack,
+    redoStack,
     inputBoxInfo,
     setInputBoxInfo,
     selectedImageData,
@@ -77,15 +79,18 @@ const Canvas = () => {
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-
-    saveCanvasData({ canvas, ctx })
+    console.log('mouse up')
+    if (selected === 101 || selected === 103 || selected === 104 || !selected) {
+      saveCanvasData({ canvas, ctx })
+    }
 
     resizing.current = false
     if (selected === 102) {
       setImageDataInDOM(prev => ({
         ...prev,
         enableResizing: false,
-        showOverview: false
+        showOverview: false,
+        isOverViewing: false
       }))
     }
   }
@@ -98,12 +103,12 @@ const Canvas = () => {
     })
 
     setUndoStack(prev => {
-      const currentIndex = canvasData[1]
-      prev[currentIndex].push(
-        ctx.getImageData(0, 0, canvas.width, canvas.height)
-      )
+      !prev[index] ? (prev[index] = []) : null
+      prev[index].push(ctx.getImageData(0, 0, canvas.width, canvas.height))
       return [...prev]
     })
+
+    !redoStack[index] ? (redoStack[index] = [null]) : null
   }
 
   const handleMouseDownOverDOMImage = e => {
@@ -123,7 +128,8 @@ const Canvas = () => {
         ...prev,
         enableResizing: false,
         showOverview: false,
-        enableDragging: false
+        enableDragging: false,
+        isOverViewing: false
       }))
     }
   }
@@ -176,7 +182,11 @@ const Canvas = () => {
   }
 
   const handleMouseEnter = () => {
-    // setIsClicked(true)
+    if (selected === 102) {
+      if (imageDataInDOM.isOverViewing) {
+        setImageDataInDOM(prev => ({ ...prev, showOverview: true }))
+      }
+    }
   }
 
   const isBoundX = (topLeftX, targetWidth, canvas) => {
@@ -339,22 +349,72 @@ const Canvas = () => {
       if (imageDataInDOM.clicked) {
         const imageElement = new Image()
         imageElement.src = selectedImageData.image
+
+        // const dimensions = (() => {
+        //   const [{ height, width }, { naturalHeight, naturalWidth }] = [
+        //     imageDataInDOM,
+        //     selectedImageData
+        //   ]
+        //   console.log(height, width)
+        //   const original_hw_ratio = naturalHeight / naturalWidth
+
+        //   const updatedHeight = original_hw_ratio * width
+        //   const updatedWidth = (1 / original_hw_ratio) * height
+
+        //   const cover_dimensions = {
+        //     cover_height: null,
+        //     cover_width: null
+        //   }
+
+        //   if (!imageDataInDOM.fit) {
+        //     if (updatedHeight < height) {
+        //       cover_dimensions.cover_height = height
+        //       cover_dimensions.cover_width = updatedWidth
+        //     } else {
+        //       cover_dimensions.cover_height = updatedHeight
+        //       cover_dimensions.cover_width = width
+        //     }
+        //   } else {
+        //     cover_dimensions.cover_height = height
+        //     cover_dimensions.cover_width = width
+        //   }
+
+        //   return cover_dimensions
+        // })()
+
         imageElement.onload = () => {
-          ctx.drawImage(
-            imageElement,
-            imageDataInDOM.left,
-            imageDataInDOM.top,
-            imageDataInDOM.width,
-            imageDataInDOM.height
-          )
-          setImageDataInDOM(prev => ({
-            ...prev,
-            height: null,
-            width: null,
-            clicked: 0
-          }))
-          setSelected(null)
-          saveCanvasData({ canvas, ctx })
+          // const newCanvas = document.createElement('canvas')
+          // const newCtx = canvas.getContext('2d', { willReadFrequently: true })
+
+          // newCanvas.height = imageDataInDOM.height
+          // newCanvas.width = imageDataInDOM.width
+          // const { cover_height, cover_width } = dimensions
+          // newCtx.drawImage(imageElement, 0, 0, cover_width, cover_height)
+          // const newUrl = newCanvas.toDataURL()
+
+          // const newImageElement = new Image()
+          // newImageElement.src = newUrl
+
+          
+
+          // newImageElement.onload = () => {
+            // console.log(newImageElement);
+            ctx.drawImage(
+              imageElement,
+              imageDataInDOM.left,
+              imageDataInDOM.top,
+              imageDataInDOM.width,
+              imageDataInDOM.height
+            )
+            setImageDataInDOM(prev => ({
+              ...prev,
+              height: null,
+              width: null,
+              clicked: 0
+            }))
+            setSelected(null)
+            saveCanvasData({ canvas, ctx })
+          // }
         }
       } else {
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
@@ -364,8 +424,8 @@ const Canvas = () => {
       let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const floodfill = new FloodFill(imageData)
 
-      floodfill.fill(rgba(selectedStyle.color),offsetX,offsetY,0)
-      
+      floodfill.fill(rgba(selectedStyle.color), offsetX, offsetY, 0)
+
       ctx.putImageData(floodfill.imageData, 0, 0)
       saveCanvasData({ canvas, ctx })
     }
@@ -488,7 +548,11 @@ const Canvas = () => {
   }, [selected])
   useEffect(() => {
     if (selectedImageData.image) {
-      setImageDataInDOM(prev => ({ ...prev, showOverview: true }))
+      setImageDataInDOM(prev => ({
+        ...prev,
+        showOverview: true,
+        isOverViewing: true
+      }))
     }
   }, [selectedImageData.image])
 
@@ -573,7 +637,7 @@ const Canvas = () => {
         </Draggable>
       )}
       {selected === 102 && imageDataInDOM.showOverview ? (
-        <SelectedImageHover {...selectedImageData} />
+        <SelectedImageHover {...selectedImageData} /> // overview image
       ) : null}
       {imageDataInDOM.height && imageDataInDOM.width ? (
         <div
@@ -589,7 +653,7 @@ const Canvas = () => {
           <img
             id='domimage'
             src={selectedImageData.image}
-            className='absolute bg-cover cursor-move top-0-left-0 z-0 w-full h-full'
+            className={`absolute cursor-move top-0-left-0 z-0 w-full h-full`}
             style={{ userSelect: 'none' }}
             onMouseDown={handleMouseDownOverDOMImage}
             onMouseUp={handleMouseUpOverDOMImage}

@@ -1,20 +1,23 @@
-
-function SelectedImageHover({ x, y, image }) {
+function SelectedImageHover ({ x, y, image }) {
   return (
-    <div
-      className="absolute h-10 w-8 bg-cover"
-      style={{
-        top: `${y}px`,
-        left: `${x}px`,
-      }}
-    >
+    // <div
+    //   className='absolute h-10 w-8'
+    //   style={{
+    //     top: `${y}px`,
+    //     left: `${x}px`
+    //   }}
+    // >
       <img
-        className={`absolute top-0 left-0 h-full w-full bg-cover z-0 opacity-70`}
-        style={{userSelect:'none'}}
+        className={`absolute top-0 left-0 h-10 w-8 object-cover z-0 opacity-70`}
+        style={{
+          userSelect: 'none',
+          top: `${y}px`,
+          left: `${x}px`
+        }}
         src={image}
       />
-    </div>
-  );
+    // </div>
+  )
 }
 
-export default SelectedImageHover;
+export default SelectedImageHover

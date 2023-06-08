@@ -27,7 +27,9 @@ function App () {
   const [selectedImageData, setSelectedImageData] = useState({
     image: null,
     x: null,
-    y: null
+    y: null,
+    naturalHeight : 1,
+    naturalWidth : 1
   })
   const [imageDataInDOM, setImageDataInDOM] = useState({
     initialX: null,
@@ -37,14 +39,15 @@ function App () {
     top: null,
     left: null,
     showOverview: false,
+    isOverViewing : false,
     enableResizing: false,
     enableDragging: false,
     clicked: 0,
     initialDraggingX: null,
-    initialDraggingY: null
+    initialDraggingY: null,
   })
   const [isSwapped, setIsSwapped] = useState(false)
-  const [hasUndoRedoPerformed,setHasUndoRedoPerformed] = useState(false)
+  const [hasUndoRedoPerformed, setHasUndoRedoPerformed] = useState(false)
   useEffect(() => {
     if (selected === 104) {
       setSelectedStyle(prev => ({ ...prev, size: 20 }))
@@ -78,8 +81,10 @@ function App () {
         hasUndoRedoPerformed
       }}
     >
-      {/* <Navbar /> */}
-      <Tools />
+      <div className='sticky top-0 z-10'>
+        <Navbar />
+        <Tools />
+      </div>
       <LowerBody />
     </Appstate.Provider>
   )

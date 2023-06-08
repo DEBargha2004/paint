@@ -12,7 +12,7 @@ function TextDeco({ url, decoration, decorationId }) {
         inputBoxInfo[decoration]
           ? "bg-[#005eff5f]"
           : "hover:bg-[#005eff34]"
-      } transition-all flex h-10 p-2 rounded-md mr-4`}
+      } transition-all flex h-10 p-2 rounded-md mx-2`}
       onClick={() =>
         setInputBoxInfo((prev) => ({ ...prev, [decoration] : !prev[decoration]}))
       }

@@ -8,12 +8,14 @@ function ImageStyleBox() {
   const { selected, setImageDataInDOM } = useContext(Appstate);
   useEffect(() => {
     const handleKeyPress = (e) => {
-      console.log(selected, e.key);
       if (selected === 102) {
         console.log(e.key);
         if (e.key === "B") {
           setImageDataInDOM((prev) => ({ ...prev, boundary: !prev.boundary }));
-        }
+        } 
+        // else if(e.key === 'F'){
+        //   setImageDataInDOM((prev) => ({ ...prev, fit: !prev.fit }));
+        // }
       }
     };
     document.addEventListener("keypress", handleKeyPress);
