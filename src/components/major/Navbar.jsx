@@ -10,10 +10,11 @@ function Navbar () {
     setHasUndoRedoPerformed,
     setUndoStack,
     setRedoStack,
-    setCanvasData
+    setCanvasData,
+    canvasDimensions
   } = useContext(Appstate)
   let [dataSet, index] = canvasData
-  const { height, width } = { height: 700, width: window.innerWidth - 400 }
+  const { height, width } = canvasDimensions
   const handleUndo = () => {
     const currentIndex = canvasData[1]
     const lastItemOfUndo = undoStack[currentIndex].slice(-1)[0]

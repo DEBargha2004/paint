@@ -3,20 +3,24 @@ import Appstate from '../../hooks/appstate'
 import { motion } from 'framer-motion'
 import { Draggable } from 'react-beautiful-dnd'
 import { addInUndoandRedo } from '../../functions/addInUndoandRedo'
+import jsPDF from 'jspdf'
 
 function SidePartComponent ({ Index }) {
-  const { canvasData, setCanvasData, setUndoStack, setRedoStack } =
+  const { canvasData, setCanvasData, setUndoStack, setRedoStack,canvasDimensions } =
     useContext(Appstate)
   const [isHovering, setIsHovering] = useState(false)
   const [width, setWidth] = useState(0)
   const sideCanvas = useRef(null)
   const deleteIcon = useRef(null)
   const addSlideBefore = useRef(null)
+  const downloadSlide = useRef(null)
+  const {height:canvasHeight,width:canvasWidth} = canvasDimensions
 
   const changeSlide = e => {
     if (
       e.target !== deleteIcon.current &&
-      e.target !== addSlideBefore.current
+      e.target !== addSlideBefore.current &&
+      e.target !== downloadSlide.current
     ) {
       setCanvasData(prev => {
         let [dataSet, index] = prev
@@ -46,6 +50,27 @@ function SidePartComponent ({ Index }) {
       return [dataSet, index]
     })
     addInUndoandRedo({setRedoStack,setUndoStack,Index,action:'add'})
+  }
+  const downloadClickedSlide = () => {
+    const doc = new jsPDF({
+      orientation:'landscape',
+      unit:'px',
+      format:[canvasWidth,canvasHeight]
+    })
+
+    const [dataSet] = canvasData
+
+    const newCanvas = document.createElement('canvas')
+    newCanvas.width = canvasWidth
+    newCanvas.height = canvasHeight
+    const newCtx = newCanvas.getContext('2d',{willReadFrequently:true})
+
+    const imageData = dataSet[Index]
+    imageData && newCtx.putImageData(imageData,0,0)
+    const imageUrl = newCanvas.toDataURL()
+     
+    doc.addImage(imageUrl,'PNG',0,0,canvasWidth,canvasHeight)
+    doc.save('slide.pdf')
   }
   useEffect(() => {
     setWidth(sideCanvas.current.clientWidth)
@@ -85,7 +110,14 @@ function SidePartComponent ({ Index }) {
             {isHovering ? (
               <div className='absolute w-full flex justify-between items-center p-2 text-slate-500 bg-[#0000000e]'>
                 <p>Slide {Index + 1}</p>
-                <div className='w-1/6 flex justify-between'>
+                <div className='w-1/4 flex justify-between'>
+                <img
+                    ref={downloadSlide}
+                    src='https://cdn-icons-png.flaticon.com/512/54/54993.png'
+                    alt=''
+                    className='h-4'
+                    onClick={downloadClickedSlide}
+                  />
                   <img
                     ref={addSlideBefore}
                     src='https://cdn-icons-png.flaticon.com/512/9238/9238876.png'

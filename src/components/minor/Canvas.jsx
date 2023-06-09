@@ -9,6 +9,7 @@ import Draggable from 'react-draggable'
 import SelectedImageHover from './SelectedImageHover'
 import resizer from '../../assets/resizer.png'
 import FloodFill from 'q-floodfill'
+import { compareImage } from '../../functions/compareImage'
 
 const Canvas = () => {
   const {
@@ -96,19 +97,28 @@ const Canvas = () => {
   }
 
   const saveCanvasData = ({ canvas, ctx }) => {
-    setCanvasData(prev => {
-      let [dataSet, index] = prev
-      dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      return [dataSet, index]
-    })
+    const currentCanvasData = ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    )
+    const savedCanvasData = dataSet[index]
+    if (!compareImage(currentCanvasData, savedCanvasData)) {
+      setCanvasData(prev => {
+        let [dataSet, index] = prev
+        dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        return [dataSet, index]
+      })
 
-    setUndoStack(prev => {
-      !prev[index] ? (prev[index] = []) : null
-      prev[index].push(ctx.getImageData(0, 0, canvas.width, canvas.height))
-      return [...prev]
-    })
+      setUndoStack(prev => {
+        !prev[index] ? (prev[index] = []) : null
+        prev[index].push(ctx.getImageData(0, 0, canvas.width, canvas.height))
+        return [...prev]
+      })
 
-    !redoStack[index] ? (redoStack[index] = [null]) : null
+      !redoStack[index] ? (redoStack[index] = [null]) : null
+    }
   }
 
   const handleMouseDownOverDOMImage = e => {
@@ -395,25 +405,23 @@ const Canvas = () => {
           // const newImageElement = new Image()
           // newImageElement.src = newUrl
 
-          
-
           // newImageElement.onload = () => {
-            // console.log(newImageElement);
-            ctx.drawImage(
-              imageElement,
-              imageDataInDOM.left,
-              imageDataInDOM.top,
-              imageDataInDOM.width,
-              imageDataInDOM.height
-            )
-            setImageDataInDOM(prev => ({
-              ...prev,
-              height: null,
-              width: null,
-              clicked: 0
-            }))
-            setSelected(null)
-            saveCanvasData({ canvas, ctx })
+          // console.log(newImageElement);
+          ctx.drawImage(
+            imageElement,
+            imageDataInDOM.left,
+            imageDataInDOM.top,
+            imageDataInDOM.width,
+            imageDataInDOM.height
+          )
+          setImageDataInDOM(prev => ({
+            ...prev,
+            height: null,
+            width: null,
+            clicked: 0
+          }))
+          setSelected(null)
+          saveCanvasData({ canvas, ctx })
           // }
         }
       } else {

@@ -10,10 +10,11 @@ function App () {
     color: { r: 0, g: 0, b: 0, a: 1 },
     size: 1
   })
-  const [canvasData, setCanvasData] = useState([
-    [null],
-    0,
-  ])
+  const [canvasData, setCanvasData] = useState([[null], 0])
+  const [canvasDimensions, setCanvasDimensions] = useState({
+    height: 700,
+    width: window.innerWidth - 400
+  })
   const [undoStack, setUndoStack] = useState([[null]])
   const [redoStack, setRedoStack] = useState([[null]])
   const [inputBoxInfo, setInputBoxInfo] = useState({
@@ -81,7 +82,8 @@ function App () {
         isSwapped,
         setIsSwapped,
         setHasUndoRedoPerformed,
-        hasUndoRedoPerformed
+        hasUndoRedoPerformed,
+        canvasDimensions
       }}
     >
       <div className='sticky  z-10'>
