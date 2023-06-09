@@ -59,6 +59,7 @@ function SketchTools () {
                 hidden
                 name=''
                 id='select-img'
+                accept='image/*'
                 onChange={handleImageChange}
               />
               <label htmlFor='select-img'>

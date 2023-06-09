@@ -10,7 +10,10 @@ function App () {
     color: { r: 0, g: 0, b: 0, a: 1 },
     size: 1
   })
-  const [canvasData, setCanvasData] = useState([[null], 0])
+  const [canvasData, setCanvasData] = useState([
+    [null],
+    0,
+  ])
   const [undoStack, setUndoStack] = useState([[null]])
   const [redoStack, setRedoStack] = useState([[null]])
   const [inputBoxInfo, setInputBoxInfo] = useState({
@@ -28,8 +31,8 @@ function App () {
     image: null,
     x: null,
     y: null,
-    naturalHeight : 1,
-    naturalWidth : 1
+    naturalHeight: 1,
+    naturalWidth: 1
   })
   const [imageDataInDOM, setImageDataInDOM] = useState({
     initialX: null,
@@ -39,12 +42,12 @@ function App () {
     top: null,
     left: null,
     showOverview: false,
-    isOverViewing : false,
+    isOverViewing: false,
     enableResizing: false,
     enableDragging: false,
     clicked: 0,
     initialDraggingX: null,
-    initialDraggingY: null,
+    initialDraggingY: null
   })
   const [isSwapped, setIsSwapped] = useState(false)
   const [hasUndoRedoPerformed, setHasUndoRedoPerformed] = useState(false)
@@ -81,7 +84,7 @@ function App () {
         hasUndoRedoPerformed
       }}
     >
-      <div className='sticky top-0 z-10'>
+      <div className='sticky  z-10'>
         <Navbar />
         <Tools />
       </div>
