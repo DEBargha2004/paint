@@ -223,6 +223,10 @@ export const textDecoration = [
     url: 'https://cdn-icons-png.flaticon.com/512/9417/9417123.png',
     decoration: 'drag',
     decorationId: 4
+  },{
+    url : 'https://cdn-icons-png.flaticon.com/512/4864/4864664.png',
+    decoration : 'boundary',
+    decorationId : 5
   }
 ]
 export const addImage = [

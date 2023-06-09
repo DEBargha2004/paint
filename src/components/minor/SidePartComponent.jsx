@@ -115,20 +115,20 @@ function SidePartComponent ({ Index }) {
                     ref={downloadSlide}
                     src='https://cdn-icons-png.flaticon.com/512/54/54993.png'
                     alt=''
-                    className='h-4'
+                    className='h-4 transition-all hover:scale-[1.15] active:scale-75'
                     onClick={downloadClickedSlide}
                   />
                   <img
                     ref={addSlideBefore}
                     src='https://cdn-icons-png.flaticon.com/512/9238/9238876.png'
                     alt=''
-                    className='h-4'
+                    className='h-4 transition-all hover:scale-[1.15] active:scale-75'
                     onClick={handleAddSlideBefore}
                   />
                   <img
                     ref={deleteIcon}
                     src='https://cdn-icons-png.flaticon.com/512/1214/1214428.png'
-                    className='h-4'
+                    className='h-4 transition-all hover:scale-[1.15] active:scale-75'
                     alt=''
                     onClick={handleDelete}
                   />

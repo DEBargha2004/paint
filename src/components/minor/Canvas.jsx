@@ -48,8 +48,14 @@ const Canvas = () => {
   const InputBox = useRef(null)
   const isVisible = useRef(false)
   const resizing = useRef(false)
+  const canvasRef = useRef(null)
 
   let [dataSet, index] = canvasData
+
+  const [textboxBound, setTextboxBound] = useState({
+    boundX: true,
+    boundY: true
+  })
 
   // const [copiedCanvasData,setCopiedCanvasData] = useState([...canvasData])
 
@@ -200,6 +206,7 @@ const Canvas = () => {
   }
 
   const isBoundX = (topLeftX, targetWidth, canvas) => {
+    console.log(topLeftX, targetWidth)
     if (topLeftX <= 0 || topLeftX + targetWidth >= canvas.width) {
       return false
     } else {
@@ -455,8 +462,18 @@ const Canvas = () => {
     const { x, y } = ui
     const { offsetX, offsetY } = e
     const { textboxWidth, textboxHeight } = inputBoxInfo
-    if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
-      setInputBoxInfo(prev => ({ ...prev, x, y }))
+    const boundX = inputBoxInfo.boundary
+      ? isBoundX(x, inputBoxInfo.textboxWidth, canvasRef.current)
+      : true
+    const boundY = inputBoxInfo.boundary
+      ? isBoundY(y, inputBoxInfo.textboxHeight, canvasRef.current)
+      : true
+    // if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
+    setInputBoxInfo(prev => ({
+      ...prev,
+      x: boundX ? x : prev.x,
+      y: boundY ? y : prev.y
+    }))
   }
 
   // dragging of textarea end
@@ -510,10 +527,16 @@ const Canvas = () => {
         const changeInY = e.pageY - resizingDataRef.current.initialY
         const netWidth = inputBoxInfo.textboxWidth + changeInX
         const netHeight = inputBoxInfo.textboxHeight + changeInY
+        const boundX = inputBoxInfo.boundary
+          ? isBoundX(inputBoxInfo.x, netWidth, canvasRef.current)
+          : true
+        const boundY = inputBoxInfo.boundary
+          ? isBoundY(inputBoxInfo.y, netHeight, canvasRef.current)
+          : true
         setInputBoxInfo(prev => ({
           ...prev,
-          textboxWidth: netWidth,
-          textboxHeight: netHeight
+          textboxWidth: boundX ? netWidth : prev.textboxWidth,
+          textboxHeight: boundY ? netHeight : prev.textboxHeight
         }))
       }
     }
@@ -576,18 +599,20 @@ const Canvas = () => {
           : `cursor-auto`
       }`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
-      onMouseLeave={() =>
+      onMouseLeave={() => {
         setImageDataInDOM(prev => ({
           ...prev,
           enableDragging: false,
           enableResizing: false,
           showOverview: false
         }))
-      }
+        resizing.current = false
+      }}
     >
       <canvas
         className={`shadow-md shadow-[#0000004b]`}
         height={700}
+        ref={canvasRef}
         width={window.innerWidth - 400}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
@@ -601,6 +626,15 @@ const Canvas = () => {
           position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
           onDrag={handleDrag}
           cancel={`${inputBoxInfo.drag ? `#resizer` : `#resizer,#textbox`}`}
+          axis={
+            textboxBound.boundX && textboxBound.boundY
+              ? `both`
+              : textboxBound.boundX
+              ? textboxBound.boundY
+                ? `both`
+                : `x`
+              : `x`
+          }
         >
           <div
             className='absolute top-0 left-0'
