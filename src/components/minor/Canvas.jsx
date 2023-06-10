@@ -39,6 +39,7 @@ const Canvas = () => {
     initialX: null,
     initialY: null
   })
+  const [visibility, setVisibility] = useState(false)
 
   const resizingDataRef = useRef({
     initialX: null,
@@ -327,36 +328,17 @@ const Canvas = () => {
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (selected === 104) {
-      const fontSize = Number(selectedStyle.size)
-      ctx.font = `${inputBoxInfo.bold ? 'bold' : ''} ${
-        inputBoxInfo.italic ? 'italic' : ''
-      } ${fontSize}px ${fontStyles[inputBoxInfo.fontFamilyIndex]} `
-      ctx.fillStyle = rgba(selectedStyle.color)
-      const textDimensions = ctx.measureText(text)
-      const textHeight =
-        textDimensions.actualBoundingBoxAscent +
-        textDimensions.actualBoundingBoxDescent
-
-      ctx.textBaseline = 'alphabetic'
-      ctx.lineCap = 'square'
-      ctx.textAlign = Alignment[inputBoxInfo.alignmentIndex].align
-
       setInputBoxInfo(prev => ({
         ...prev,
         visible: !prev.visible,
         x: offsetX,
         y: offsetY
       }))
+
+      isVisible.current &&
+        print_MultilineText(InputBox, inputBoxInfo, canvas, ctx, setVisibility)
+
       isVisible.current = !isVisible.current
-      inputBoxInfo.visible ? InputBox.current.focus() : null
-      inputBoxInfo.value &&
-        print_MultilineText(
-          textHeight,
-          ctx,
-          inputBoxInfo,
-          selectedStyle,
-          InputBox
-        )
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
     } else {
       setInputBoxInfo(prev => ({ ...prev, visible: false }))
@@ -451,7 +433,7 @@ const Canvas = () => {
   const handleInputBoxChange = e => {
     setInputBoxInfo(prev => ({
       ...prev,
-      value: e.target.value
+      value: InputBox.current.innerHTML
     }))
   }
   //value addition of inputbox end
@@ -557,7 +539,7 @@ const Canvas = () => {
         }))
       }
     }
-    const textbox = document.querySelector('textarea')
+    const textbox = document.getElementById('textbox')
     inputBoxInfo.visible
       ? new ResizeObserver(handleResizeTextarea).observe(textbox)
       : null
@@ -589,6 +571,7 @@ const Canvas = () => {
 
   return (
     <div
+      id='canvasParent'
       className={`relative overflow-hidden ${
         !imageDataInDOM.height &&
         !imageDataInDOM.width &&
@@ -621,7 +604,7 @@ const Canvas = () => {
         onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
       />
-      {inputBoxInfo.visible && (
+
         <Draggable
           position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
           onDrag={handleDrag}
@@ -643,15 +626,13 @@ const Canvas = () => {
               width: `${inputBoxInfo.textboxWidth}px`
             }}
           >
-            <textarea
+            <div
               id='textbox'
-              className={`absolute bg-transparent border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
+              className={`absolute bg-transparent  border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
                 inputBoxInfo.bold && 'font-bold'
               } ${inputBoxInfo.italic && 'italic'}`}
-              value={inputBoxInfo.value}
               style={{
-                display:
-                  selected === 104 && inputBoxInfo.visible ? 'block' : 'none',
+                
                 width: `${inputBoxInfo.textboxWidth || 300}px`,
                 height: `${inputBoxInfo.textboxHeight || 100}px`,
                 textDecoration: `${inputBoxInfo.underline ? 'underline' : ''} ${
@@ -665,8 +646,10 @@ const Canvas = () => {
                 textAlign: Alignment[inputBoxInfo.alignmentIndex].align
               }}
               ref={InputBox}
-              onChange={handleInputBoxChange}
-            />
+              spellCheck='false'
+              contentEditable
+              onInput={handleInputBoxChange}
+            ></div>
             <div
               id='resizer'
               className={`absolute w-5 h-5 right-0 bottom-0 cursor-nwse-resize ${
@@ -677,7 +660,7 @@ const Canvas = () => {
             />
           </div>
         </Draggable>
-      )}
+  
       {selected === 102 && imageDataInDOM.showOverview ? (
         <SelectedImageHover {...selectedImageData} /> // overview image
       ) : null}

@@ -61,37 +61,39 @@ function App () {
   }, [selected])
 
   return (
-    <Appstate.Provider
-      value={{
-        selected,
-        setSelected,
-        selectedStyle,
-        setSelectedStyle,
-        setCanvasData,
-        canvasData,
-        setUndoStack,
-        setRedoStack,
-        undoStack,
-        redoStack,
-        inputBoxInfo,
-        setInputBoxInfo,
-        setSelectedImageData,
-        selectedImageData,
-        imageDataInDOM,
-        setImageDataInDOM,
-        isSwapped,
-        setIsSwapped,
-        setHasUndoRedoPerformed,
-        hasUndoRedoPerformed,
-        canvasDimensions
-      }}
-    >
-      <div className='sticky  z-10'>
-        <Navbar />
-        <Tools />
-      </div>
-      <LowerBody />
-    </Appstate.Provider>
+    <>
+      <Appstate.Provider
+        value={{
+          selected,
+          setSelected,
+          selectedStyle,
+          setSelectedStyle,
+          setCanvasData,
+          canvasData,
+          setUndoStack,
+          setRedoStack,
+          undoStack,
+          redoStack,
+          inputBoxInfo,
+          setInputBoxInfo,
+          setSelectedImageData,
+          selectedImageData,
+          imageDataInDOM,
+          setImageDataInDOM,
+          isSwapped,
+          setIsSwapped,
+          setHasUndoRedoPerformed,
+          hasUndoRedoPerformed,
+          canvasDimensions
+        }}
+      >
+        <div className='sticky  z-10'>
+          <Navbar />
+          <Tools />
+        </div>
+        <LowerBody />
+      </Appstate.Provider>
+    </>
   )
 }
 

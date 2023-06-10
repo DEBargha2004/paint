@@ -34,3 +34,9 @@ input[type='number']::-webkit-inner-spin-button {
   background-color: darkgray;
 }
 
+#sample{
+  background-color: red;
+  font-size: 100px;
+  padding: 30px;
+  color: white;
+}
