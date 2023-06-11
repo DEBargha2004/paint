@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import Appstate from '../../hooks/appstate'
 import jsPDF from 'jspdf'
+import {deepClone} from '../../functions/deepClone'
 
 function Navbar () {
   const {
@@ -18,23 +19,29 @@ function Navbar () {
   const handleUndo = () => {
     const currentIndex = canvasData[1]
     const lastItemOfUndo = undoStack[currentIndex].slice(-1)[0]
+    console.log('this is undoredo button 1',lastItemOfUndo)
+
     if (lastItemOfUndo) {
-      console.log(undoStack[0].length)
+      console.log('entered condition 2')
       setUndoStack(prev => {
-        prev[currentIndex].pop()
-        return [...prev]
+        // prev = [...prev[currentIndex].slice(0,-1)]
+        const clone = prev.map(stack => [...stack])
+        clone[currentIndex] = clone[currentIndex].slice(0,-1)
+        return [...clone]
       })
       console.log(undoStack[0].length)
       setRedoStack(prev => {
-        prev[currentIndex].push(lastItemOfUndo)
-        return [...prev]
+        const clone = deepClone(prev)
+        clone[currentIndex] = [...clone[currentIndex],lastItemOfUndo]
+        return [...clone]
       })
-      setCanvasData(prevCanvasData => {
+      setCanvasData(prevCanvasData => {                           //removing
         let [dataSet, index] = prevCanvasData
-        dataSet[index] = undoStack[currentIndex].slice(-1)[0]
+        dataSet[index] = undoStack[currentIndex].slice(-2)[0]
         // console.log(undoStack[currentIndex].slice(-1)[0],undoStack)
         return [[...dataSet], index]
       })
+      console.log('undo redo performed')
       setHasUndoRedoPerformed(true)
     }
   }
@@ -45,14 +52,16 @@ function Navbar () {
     console.log(lastItemOfRedo, redoStack[currentIndex])
     if (lastItemOfRedo) {
       setRedoStack(prev => {
-        prev[currentIndex].pop()
-        return [...prev]
+        const clone = prev.map(stack => [...stack])
+        clone[currentIndex] = clone[currentIndex].slice(0,-1)
+        return [...clone]
       })
       setUndoStack(prev => {
-        prev[currentIndex].push(lastItemOfRedo)
-        return [...prev]
+        const clone = deepClone(prev)
+        clone[currentIndex] = [...clone[currentIndex],lastItemOfRedo]
+        return [...clone]
       })
-      setCanvasData(prevCanvasData => {
+      setCanvasData(prevCanvasData => {                   // adding
         let [dataSet, index] = prevCanvasData
         dataSet[index] = lastItemOfRedo
         console.log(redoStack)
@@ -63,13 +72,13 @@ function Navbar () {
   }
 
   const handleDownload = () => {
-    console.log(height,width)
+    console.log(height, width)
     let [dataSet, index] = canvasData
     if (dataSet.length) {
       const doc = new jsPDF({
-        orientation:'landscape',
-        unit:'px',
-        format:[width,height]
+        orientation: 'landscape',
+        unit: 'px',
+        format: [width, height]
       })
       dataSet.forEach((item, index) => {
         if (index !== 0) {

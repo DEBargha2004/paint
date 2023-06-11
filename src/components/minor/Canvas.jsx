@@ -39,7 +39,7 @@ const Canvas = () => {
     initialX: null,
     initialY: null
   })
-  const [visibility, setVisibility] = useState(false)
+  const [refresh,setRefresh] = useState(false)
 
   const resizingDataRef = useRef({
     initialX: null,
@@ -328,16 +328,17 @@ const Canvas = () => {
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (selected === 104) {
-      setInputBoxInfo(prev => ({
-        ...prev,
-        visible: !prev.visible,
-        x: offsetX,
-        y: offsetY
-      }))
+      if (!inputBoxInfo.visible) {
+        setInputBoxInfo(prev => ({
+          ...prev,
+          visible: !prev.visible,
+          x: offsetX,
+          y: offsetY
+        }))
+      }
 
       isVisible.current &&
-        print_MultilineText(InputBox, inputBoxInfo, canvas, ctx, setVisibility)
-
+        print_MultilineText(InputBox, inputBoxInfo,setInputBoxInfo, canvas, ctx,saveCanvasData)
       isVisible.current = !isVisible.current
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
     } else {
@@ -490,14 +491,16 @@ const Canvas = () => {
     inputBoxInfo.value
   ])
   useEffect(() => {
+    console.log(index,dataSet);
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
       : ctx.clearRect(0, 0, canvas.width, canvas.height)
     setIsSwapped(false)
+    console.log('undo redo performed',hasUndoRedoPerformed);
     setHasUndoRedoPerformed(false)
-  }, [index, dataSet, isSwapped, hasUndoRedoPerformed]) // when selected slide changes index changes
+  }, [index, dataSet.length, isSwapped, hasUndoRedoPerformed]) // when selected slide changes index changes
   // when slide is deleted index is not changed
   // so thats why when dataSet.length changes it
   // again gets triggered
@@ -569,6 +572,7 @@ const Canvas = () => {
     }
   }, [selectedImageData.image])
 
+
   return (
     <div
       id='canvasParent'
@@ -593,7 +597,7 @@ const Canvas = () => {
       }}
     >
       <canvas
-        className={`shadow-md shadow-[#0000004b]`}
+        className={`shadow-md shadow-[#0000004b] bg-white`}
         height={700}
         ref={canvasRef}
         width={window.innerWidth - 400}
@@ -605,6 +609,7 @@ const Canvas = () => {
         onMouseMove={handleMouseMove}
       />
 
+      {inputBoxInfo.visible ? (
         <Draggable
           position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
           onDrag={handleDrag}
@@ -628,11 +633,10 @@ const Canvas = () => {
           >
             <div
               id='textbox'
-              className={`absolute bg-transparent  border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
+              className={`absolute bg-transparent p-1 border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
                 inputBoxInfo.bold && 'font-bold'
               } ${inputBoxInfo.italic && 'italic'}`}
               style={{
-                
                 width: `${inputBoxInfo.textboxWidth || 300}px`,
                 height: `${inputBoxInfo.textboxHeight || 100}px`,
                 textDecoration: `${inputBoxInfo.underline ? 'underline' : ''} ${
@@ -660,7 +664,7 @@ const Canvas = () => {
             />
           </div>
         </Draggable>
-  
+      ) : null}
       {selected === 102 && imageDataInDOM.showOverview ? (
         <SelectedImageHover {...selectedImageData} /> // overview image
       ) : null}
