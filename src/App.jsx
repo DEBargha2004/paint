@@ -26,7 +26,10 @@ function App () {
     textboxHeight: 0,
     fontFamilyIndex: 0,
     lineHeightIndex: 0,
-    alignmentIndex: 0
+    alignmentIndex: 0,
+    temp_fontFamilyIndex: null,
+    temp_lineHeightIndex: null,
+    temp_alignmentIndex: null
   })
   const [selectedImageData, setSelectedImageData] = useState({
     image: null,

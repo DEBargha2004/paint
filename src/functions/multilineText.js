@@ -8,15 +8,15 @@ export const print_MultilineText = (
   ctx,
   saveCanvasData
 ) => {
-  InputBox.current.style.border = 0
-  InputBox.current.style.resize = 'none'
+  InputBox.current ? (InputBox.current.style.border = 0) : null
+  InputBox.current ? (InputBox.current.style.resize = 'none') : null
 
   DomToImage.toPng(document.getElementById('textbox'))
     .then(url => {
       const image = new Image()
       image.src = url
       image.onload = () => {
-        ctx.drawImage(image, inputBoxInfo.x + 0.5, inputBoxInfo.y + 0.5)
+        ctx.drawImage(image, inputBoxInfo.x, inputBoxInfo.y)
         saveCanvasData({ canvas, ctx })
       }
       setInputBoxInfo(prev => ({ ...prev, visible: false }))

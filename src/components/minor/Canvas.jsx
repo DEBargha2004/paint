@@ -10,7 +10,9 @@ import SelectedImageHover from './SelectedImageHover'
 import resizer from '../../assets/resizer.png'
 import FloodFill from 'q-floodfill'
 import { compareImage } from '../../functions/compareImage'
-
+import Dragg from './Dragg'
+import { isNumber } from '../../functions/isNumber'
+const alignment = ['left', 'center', 'right']
 const Canvas = () => {
   const {
     selected,
@@ -39,7 +41,7 @@ const Canvas = () => {
     initialX: null,
     initialY: null
   })
-  const [refresh,setRefresh] = useState(false)
+  const [refresh, setRefresh] = useState(false)
 
   const resizingDataRef = useRef({
     initialX: null,
@@ -338,7 +340,14 @@ const Canvas = () => {
       }
 
       isVisible.current &&
-        print_MultilineText(InputBox, inputBoxInfo,setInputBoxInfo, canvas, ctx,saveCanvasData)
+        print_MultilineText(
+          InputBox,
+          inputBoxInfo,
+          setInputBoxInfo,
+          canvas,
+          ctx,
+          saveCanvasData
+        )
       isVisible.current = !isVisible.current
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
     } else {
@@ -441,21 +450,20 @@ const Canvas = () => {
 
   // dragging of textarea start
 
-  const handleDrag = (e, ui) => {
-    const { x, y } = ui
-    const { offsetX, offsetY } = e
+  const handleDragTextbox = e => {
+    const { top, left, changeX, changeY } = e
     const { textboxWidth, textboxHeight } = inputBoxInfo
     const boundX = inputBoxInfo.boundary
-      ? isBoundX(x, inputBoxInfo.textboxWidth, canvasRef.current)
+      ? isBoundX(left + changeX, inputBoxInfo.textboxWidth, canvasRef.current)
       : true
     const boundY = inputBoxInfo.boundary
-      ? isBoundY(y, inputBoxInfo.textboxHeight, canvasRef.current)
+      ? isBoundY(top + changeY, inputBoxInfo.textboxHeight, canvasRef.current)
       : true
     // if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
     setInputBoxInfo(prev => ({
       ...prev,
-      x: boundX ? x : prev.x,
-      y: boundY ? y : prev.y
+      x: boundX ? left + changeX : left,
+      y: boundY ? top + changeY : top
     }))
   }
 
@@ -480,6 +488,24 @@ const Canvas = () => {
 
   // handling of resizing process for textarea end
 
+  const handleDragImage = e => {
+    const { left, top, changeX, changeY } = e
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+
+    const boundX = imageDataInDOM.boundary
+      ? isBoundX(left + changeX, imageDataInDOM.width, canvas)
+      : true
+    const boundY = imageDataInDOM.boundary
+      ? isBoundY(top + changeY, imageDataInDOM.height, canvas)
+      : true
+    setImageDataInDOM(prev => ({
+      ...prev,
+      left: boundX ? left + changeX : left,
+      top: boundY ? top + changeY : top
+    }))
+  }
+
   useEffect(() => {
     if (inputBoxInfo.value && InputBox.current) {
       InputBox.current.style.height = `${InputBox.current.scrollHeight}px`
@@ -491,14 +517,14 @@ const Canvas = () => {
     inputBoxInfo.value
   ])
   useEffect(() => {
-    console.log(index,dataSet);
+    console.log(index, dataSet)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
       : ctx.clearRect(0, 0, canvas.width, canvas.height)
     setIsSwapped(false)
-    console.log('undo redo performed',hasUndoRedoPerformed);
+    console.log('undo redo performed', hasUndoRedoPerformed)
     setHasUndoRedoPerformed(false)
   }, [index, dataSet.length, isSwapped, hasUndoRedoPerformed]) // when selected slide changes index changes
   // when slide is deleted index is not changed
@@ -561,6 +587,12 @@ const Canvas = () => {
       x: null,
       y: null
     }))
+    setImageDataInDOM(prev => ({
+      ...prev,
+      height: null,
+      width: null,
+      clicked: 0
+    }))
   }, [selected])
   useEffect(() => {
     if (selectedImageData.image) {
@@ -571,8 +603,18 @@ const Canvas = () => {
       }))
     }
   }, [selectedImageData.image])
-
-
+  useEffect(() => {
+    const handleMouseupInWindow = () => {
+      setImageDataInDOM(prev => ({
+        ...prev,
+        enableResizing: false,
+        showOverview: false,
+        isOverViewing: false
+      }))
+    }
+    window.addEventListener('mouseup', handleMouseupInWindow)
+    return () => window.removeEventListener('mouseup', handleMouseupInWindow)
+  }, [])
   return (
     <div
       id='canvasParent'
@@ -597,7 +639,7 @@ const Canvas = () => {
       }}
     >
       <canvas
-        className={`shadow-md shadow-[#0000004b] bg-white`}
+        className={`shadow-md shadow-[#0000004b`}
         height={700}
         ref={canvasRef}
         width={window.innerWidth - 400}
@@ -610,19 +652,10 @@ const Canvas = () => {
       />
 
       {inputBoxInfo.visible ? (
-        <Draggable
+        <Dragg
           position={{ x: inputBoxInfo.x, y: inputBoxInfo.y }}
-          onDrag={handleDrag}
-          cancel={`${inputBoxInfo.drag ? `#resizer` : `#resizer,#textbox`}`}
-          axis={
-            textboxBound.boundX && textboxBound.boundY
-              ? `both`
-              : textboxBound.boundX
-              ? textboxBound.boundY
-                ? `both`
-                : `x`
-              : `x`
-          }
+          dragevent={handleDragTextbox}
+          cancel={[`#resizer`, inputBoxInfo.drag ? `` : `#textbox`]}
         >
           <div
             className='absolute top-0 left-0'
@@ -633,7 +666,7 @@ const Canvas = () => {
           >
             <div
               id='textbox'
-              className={`absolute bg-transparent p-1 border-[0.5px] top-0 left-0 border-[black] border-dotted outline-none overflow-hidden underline-offset-8 ${
+              className={`absolute bg-transparent p-1 outline-dashed outline-black outline-1 top-0 left-0  border-dotted outline-none overflow-hidden underline-offset-8 ${
                 inputBoxInfo.bold && 'font-bold'
               } ${inputBoxInfo.italic && 'italic'}`}
               style={{
@@ -645,8 +678,12 @@ const Canvas = () => {
                 fontSize: `${selectedStyle.size}px`,
                 resize: 'both',
                 color: rgba(selectedStyle.color),
-                fontFamily: fontStyles[inputBoxInfo.fontFamilyIndex],
-                lineHeight: lineHeight[inputBoxInfo.lineHeightIndex],
+                fontFamily: isNumber(inputBoxInfo.temp_fontFamilyIndex)
+                  ? fontStyles[inputBoxInfo.temp_fontFamilyIndex]
+                  : fontStyles[inputBoxInfo.fontFamilyIndex],
+                lineHeight: isNumber(inputBoxInfo.temp_lineHeightIndex)
+                  ? lineHeight[inputBoxInfo.temp_lineHeightIndex]
+                  : lineHeight[inputBoxInfo.lineHeightIndex],
                 textAlign: Alignment[inputBoxInfo.alignmentIndex].align
               }}
               ref={InputBox}
@@ -663,58 +700,62 @@ const Canvas = () => {
               onMouseUp={handleResizingMouseUp}
             />
           </div>
-        </Draggable>
+        </Dragg>
       ) : null}
       {selected === 102 && imageDataInDOM.showOverview ? (
         <SelectedImageHover {...selectedImageData} /> // overview image
       ) : null}
       {imageDataInDOM.height && imageDataInDOM.width ? (
-        <div
-          className='absolute z-0'
-          style={{
-            top: `${imageDataInDOM.top}px`,
-            left: `${imageDataInDOM.left}px`,
-            height: `${imageDataInDOM.height}px`,
-            width: `${imageDataInDOM.width}px`,
-            resize: 'both'
-          }}
+        <Dragg
+          position={{ x: imageDataInDOM.left, y: imageDataInDOM.top }}
+          dragevent={handleDragImage}
+          cancel={['.resizer']}
         >
-          <img
-            id='domimage'
-            src={selectedImageData.image}
-            className={`absolute cursor-move top-0-left-0 z-0 w-full h-full`}
-            style={{ userSelect: 'none' }}
-            onMouseDown={handleMouseDownOverDOMImage}
-            onMouseUp={handleMouseUpOverDOMImage}
-            onMouseMove={handleMouseMoveOverDOMImage}
-            onDragStart={e => e.preventDefault()}
-            alt=''
-          />
-          <div className='h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize'>
+          <div
+            id='imagewrap'
+            className='absolute z-0'
+            style={{
+              top: `0px`,
+              left: `0px`,
+              height: `${imageDataInDOM.height}px`,
+              width: `${imageDataInDOM.width}px`,
+              resize: 'both'
+            }}
+          >
             <img
-              src={resizer}
-              className=''
-              alt=''
+              id='domimage'
+              src={selectedImageData.image}
+              className={`absolute cursor-move top-0-left-0 z-0 w-full h-full`}
               style={{ userSelect: 'none' }}
-              onMouseDown={e =>
-                setImageDataInDOM(prev => ({
-                  ...prev,
-                  enableResizing: true,
-                  initialX: e.pageX,
-                  initialY: e.pageY
-                }))
-              }
-              onMouseUp={() =>
-                setImageDataInDOM(prev => ({
-                  ...prev,
-                  enableResizing: false
-                }))
-              }
-              onDragStart={e => e.preventDefault()}
-              onMouseMove={handleMouseMove}
+              onMouseMove={handleMouseMoveOverDOMImage}
+              alt=''
             />
+            <div className='h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize z-10'>
+              <img
+                src={resizer}
+                className='resizer'
+                alt=''
+                style={{ userSelect: 'none' }}
+                onMouseDown={e =>
+                  setImageDataInDOM(prev => ({
+                    ...prev,
+                    enableResizing: true,
+                    initialX: e.pageX,
+                    initialY: e.pageY
+                  }))
+                }
+                onMouseUp={() =>
+                  setImageDataInDOM(prev => ({
+                    ...prev,
+                    enableResizing: false
+                  }))
+                }
+                onDragStart={e => e.preventDefault()}
+                onMouseMove={handleMouseMove}
+              />
+            </div>
           </div>
-        </div>
+        </Dragg>
       ) : null}
     </div>
   )

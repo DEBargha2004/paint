@@ -28,6 +28,7 @@ function TextStyleListItemContainer ({ children, display, stateKey }) {
       <div
         ref={ListBox}
         className={`absolute max-h-[550px] transition-all whitespace-nowrap top-[-100px] p-2 left-0 text-lg bg-white rounded-lg shadow-lg shadow-[#00000031] overflow-y-scroll z-20`}
+        onMouseLeave={()=>setInputBoxInfo(prev => ({...prev,[`temp_${stateKey}`] : null}))}
       >
         {children}
       </div>

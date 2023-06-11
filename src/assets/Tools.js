@@ -184,17 +184,20 @@ export const Alignment = [
   {
     url: 'https://cdn-icons-png.flaticon.com/512/847/847497.png',
     align: 'left',
-    alignmentId: 0
+    alignmentId: 0,
+    label: `Shift + L`
   },
   {
     url: 'https://cdn-icons-png.flaticon.com/512/4202/4202196.png',
     align: 'center',
-    alignmentId: 1
+    alignmentId: 1,
+    label: `Shift + C`
   },
   {
     url: 'https://cdn-icons-png.flaticon.com/512/748/748111.png',
     align: 'right',
-    alignmentId: 2
+    alignmentId: 2,
+    label: `Shift + R`
   }
 ]
 
@@ -223,10 +226,11 @@ export const textDecoration = [
     url: 'https://cdn-icons-png.flaticon.com/512/9417/9417123.png',
     decoration: 'drag',
     decorationId: 4
-  },{
-    url : 'https://cdn-icons-png.flaticon.com/512/4864/4864664.png',
-    decoration : 'boundary',
-    decorationId : 5
+  },
+  {
+    url: 'https://cdn-icons-png.flaticon.com/512/4864/4864664.png',
+    decoration: 'boundary',
+    decorationId: 5
   }
 ]
 export const addImage = [
@@ -242,7 +246,7 @@ export const ImageDecoList = [
     id: '102b',
     decoration: 'boundary',
     label: 'Shift B'
-  },
+  }
   // {
   //   url: 'https://cdn-icons-png.flaticon.com/512/80/80998.png',
   //   id: '102c',
