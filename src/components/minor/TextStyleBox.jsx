@@ -21,23 +21,24 @@ function TextStyleBox () {
   const handleKeyPress = e => {
     if (selected === 104) {
       const key = e.key
-      if (key === 'L') {
-        setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 0 }))
-      } else if (key === 'C') {
-        setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 1 }))
-      } else if (key === 'R') {
-        setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 2 }))
-      }else if(key === 'B'){
-        setInputBoxInfo(prev => ({...prev,bold : !prev.bold}))
-      }else if(key === 'I'){
-        setInputBoxInfo(prev => ({...prev,italic : !prev.italic}))
-      }else if(key === 'U'){
-        setInputBoxInfo(prev => ({...prev,underline : !prev.underline}))
-      }else if(key === 'S'){
-        setInputBoxInfo(prev => ({...prev,strikethrough : !prev.strikethrough}))
-      }else if(key === 'D'){
-        setInputBoxInfo(prev => ({...prev,drag : !prev.drag}))
-      }
+      console.log(key);
+      // if (key === 'L') {
+      //   setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 0 }))
+      // } else if (key === 'C') {
+      //   setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 1 }))
+      // } else if (key === 'R') {
+      //   setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 2 }))
+      // }else if(key === 'B'){
+      //   setInputBoxInfo(prev => ({...prev,bold : !prev.bold}))
+      // }else if(key === 'I'){
+      //   setInputBoxInfo(prev => ({...prev,italic : !prev.italic}))
+      // }else if(key === 'U'){
+      //   setInputBoxInfo(prev => ({...prev,underline : !prev.underline}))
+      // }else if(key === 'S'){
+      //   setInputBoxInfo(prev => ({...prev,strikethrough : !prev.strikethrough}))
+      // }else if(key === 'D'){
+      //   setInputBoxInfo(prev => ({...prev,drag : !prev.drag}))
+      // }
     }
   }
   useEffect(() => {

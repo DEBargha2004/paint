@@ -42,7 +42,7 @@ function Aligner ({ url, align, alignmentId, label }) {
       ref={topRef}
     >
       <img src={url} alt='' />
-      {isHovering && (
+      {isHovering && label && (
         <motion.div
           layout
           initial={{ bottom: `-80px`, opacity: 0 }}

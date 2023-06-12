@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 
-function Dragg ({ children, dragevent, position, cancel, }) {
+function Dragg ({ children, dragevent, position, cancel }) {
   const dragRef = useRef(null)
   const [dragEvents, setDragEvents] = useState({
     mousePress: false,
@@ -14,7 +14,7 @@ function Dragg ({ children, dragevent, position, cancel, }) {
     drag: true
   })
   const handlemousedown = e => {
-    cancel.forEach((item, index) => {
+    cancel?.forEach((item, index) => {
       const resizerInCurrentTarget = item ?  e.currentTarget.querySelector(item) : item
       const target = e.target
       if (target === resizerInCurrentTarget) {

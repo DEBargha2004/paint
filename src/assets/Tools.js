@@ -185,19 +185,19 @@ export const Alignment = [
     url: 'https://cdn-icons-png.flaticon.com/512/847/847497.png',
     align: 'left',
     alignmentId: 0,
-    label: `Shift + L`
+    // label: `Shift + L`
   },
   {
     url: 'https://cdn-icons-png.flaticon.com/512/4202/4202196.png',
     align: 'center',
     alignmentId: 1,
-    label: `Shift + C`
+    // label: `Shift + C`
   },
   {
     url: 'https://cdn-icons-png.flaticon.com/512/748/748111.png',
     align: 'right',
     alignmentId: 2,
-    label: `Shift + R`
+    // label: `Shift + R`
   }
 ]
 
@@ -245,12 +245,24 @@ export const ImageDecoList = [
     url: 'https://cdn-icons-png.flaticon.com/512/4864/4864664.png',
     id: '102b',
     decoration: 'boundary',
-    label: 'Shift B'
+    label: 'Shift + B'
+  },
+  {
+    url: 'https://cdn-icons-png.flaticon.com/512/80/80998.png',
+    id: '102c',
+    decoration: 'fit',
+    label: 'Shift + F'
+  },
+  {
+    url: '	https://cdn-icons-png.flaticon.com/512/734/734592.png',
+    id: '102d',
+    decoration: 'flip_vertical',
+    label: 'Shift + V'
+  },
+  {
+    url: 'https://cdn-icons-png.flaticon.com/512/734/734593.png',
+    id: '102e',
+    decoration: 'flip_horizontal',
+    label: 'Shift + H'
   }
-  // {
-  //   url: 'https://cdn-icons-png.flaticon.com/512/80/80998.png',
-  //   id: '102c',
-  //   decoration: 'fit',
-  //   label: 'Shift F'
-  // }
 ]

@@ -35,7 +35,7 @@ function ImageDeco ({ decoration, url, label, id }) {
       onMouseLeave={() => setIsHovering(false)}
     >
       <img src={url} alt='' />
-      {isHovering && (
+      {isHovering && label && (
         <motion.div
           ref={hoveredLabel}
           layout

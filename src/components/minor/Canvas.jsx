@@ -5,14 +5,13 @@ import chroma from 'chroma-js'
 import { position } from '../../functions/position'
 import { print_MultilineText } from '../../functions/multilineText'
 import { Alignment, fontStyles, lineHeight } from '../../assets/Tools'
-import Draggable from 'react-draggable'
 import SelectedImageHover from './SelectedImageHover'
 import resizer from '../../assets/resizer.png'
 import FloodFill from 'q-floodfill'
 import { compareImage } from '../../functions/compareImage'
 import Dragg from './Dragg'
 import { isNumber } from '../../functions/isNumber'
-const alignment = ['left', 'center', 'right']
+import DomToImage from 'dom-to-image'
 const Canvas = () => {
   const {
     selected,
@@ -209,7 +208,6 @@ const Canvas = () => {
   }
 
   const isBoundX = (topLeftX, targetWidth, canvas) => {
-    console.log(topLeftX, targetWidth)
     if (topLeftX <= 0 || topLeftX + targetWidth >= canvas.width) {
       return false
     } else {
@@ -279,10 +277,15 @@ const Canvas = () => {
       }
     }
     if (selected === 102 && imageDataInDOM.showOverview) {
+      const documentScrollTop = document.querySelector('html').scrollTop
+      const { x, y } = document.querySelector('canvas').getBoundingClientRect()
+      const mousePosY = pageY - documentScrollTop - y
+      const mousePosX = pageX - x
+      console.table(pageY,y,documentScrollTop,mousePosY);
       setSelectedImageData(prev => ({
         ...prev,
-        x: offsetX + 5,
-        y: offsetY + 5
+        x: mousePosX + 5,
+        y: mousePosY + 5
       }))
     }
     if (selected === 102 && imageDataInDOM.enableResizing) {
@@ -356,73 +359,27 @@ const Canvas = () => {
 
     if (selected === 102 && selectedImageData.image) {
       if (imageDataInDOM.clicked) {
-        const imageElement = new Image()
-        imageElement.src = selectedImageData.image
-
-        // const dimensions = (() => {
-        //   const [{ height, width }, { naturalHeight, naturalWidth }] = [
-        //     imageDataInDOM,
-        //     selectedImageData
-        //   ]
-        //   console.log(height, width)
-        //   const original_hw_ratio = naturalHeight / naturalWidth
-
-        //   const updatedHeight = original_hw_ratio * width
-        //   const updatedWidth = (1 / original_hw_ratio) * height
-
-        //   const cover_dimensions = {
-        //     cover_height: null,
-        //     cover_width: null
-        //   }
-
-        //   if (!imageDataInDOM.fit) {
-        //     if (updatedHeight < height) {
-        //       cover_dimensions.cover_height = height
-        //       cover_dimensions.cover_width = updatedWidth
-        //     } else {
-        //       cover_dimensions.cover_height = updatedHeight
-        //       cover_dimensions.cover_width = width
-        //     }
-        //   } else {
-        //     cover_dimensions.cover_height = height
-        //     cover_dimensions.cover_width = width
-        //   }
-
-        //   return cover_dimensions
-        // })()
-
-        imageElement.onload = () => {
-          // const newCanvas = document.createElement('canvas')
-          // const newCtx = canvas.getContext('2d', { willReadFrequently: true })
-
-          // newCanvas.height = imageDataInDOM.height
-          // newCanvas.width = imageDataInDOM.width
-          // const { cover_height, cover_width } = dimensions
-          // newCtx.drawImage(imageElement, 0, 0, cover_width, cover_height)
-          // const newUrl = newCanvas.toDataURL()
-
-          // const newImageElement = new Image()
-          // newImageElement.src = newUrl
-
-          // newImageElement.onload = () => {
-          // console.log(newImageElement);
-          ctx.drawImage(
-            imageElement,
-            imageDataInDOM.left,
-            imageDataInDOM.top,
-            imageDataInDOM.width,
-            imageDataInDOM.height
-          )
-          setImageDataInDOM(prev => ({
-            ...prev,
-            height: null,
-            width: null,
-            clicked: 0
-          }))
-          setSelected(null)
-          saveCanvasData({ canvas, ctx })
-          // }
-        }
+        DomToImage.toPng(document.getElementById('domimage')).then(url => {
+          const image = new Image()
+          image.src = url
+          image.onload = () => {
+            ctx.drawImage(
+              image,
+              imageDataInDOM.left,
+              imageDataInDOM.top,
+              imageDataInDOM.width,
+              imageDataInDOM.height
+            )
+            setImageDataInDOM(prev => ({
+              ...prev,
+              height: null,
+              width: null,
+              clicked: 0
+            }))
+            setSelected(null)
+            saveCanvasData({ canvas, ctx })
+          }
+        })
       } else {
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
@@ -460,11 +417,13 @@ const Canvas = () => {
       ? isBoundY(top + changeY, inputBoxInfo.textboxHeight, canvasRef.current)
       : true
     // if (textboxHeight - offsetY > 20 && textboxWidth - offsetX > 20)
-    setInputBoxInfo(prev => ({
-      ...prev,
-      x: boundX ? left + changeX : left,
-      y: boundY ? top + changeY : top
-    }))
+    if (inputBoxInfo.drag) {
+      setInputBoxInfo(prev => ({
+        ...prev,
+        x: boundX ? left + changeX : left,
+        y: boundY ? top + changeY : top
+      }))
+    }
   }
 
   // dragging of textarea end
@@ -623,7 +582,7 @@ const Canvas = () => {
         !imageDataInDOM.width &&
         selectedImageData.image
           ? `cursor-crosshair`
-          : imageDataInDOM.enableResizing
+          : imageDataInDOM.enableResizing && imageDataInDOM.isOverViewing
           ? `cursor-crosshair`
           : `cursor-auto`
       }`}
@@ -725,12 +684,20 @@ const Canvas = () => {
             <img
               id='domimage'
               src={selectedImageData.image}
-              className={`absolute cursor-move top-0-left-0 z-0 w-full h-full`}
+              className={`absolute ${
+                imageDataInDOM.fit ? `` : `object-cover`
+              } ${imageDataInDOM.flip_horizontal ? `-scale-y-100` : ``} ${
+                imageDataInDOM.flip_vertical ? `-scale-x-100` : ``
+              } cursor-move top-0-left-0 z-0 w-full h-full`}
               style={{ userSelect: 'none' }}
               onMouseMove={handleMouseMoveOverDOMImage}
               alt=''
             />
-            <div className='h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center cursor-nwse-resize z-10'>
+            <div
+              className={`h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center ${
+                imageDataInDOM.showOverview ? `cursor-crosshair` : `cursor-nwse-resize`
+              } z-10`}
+            >
               <img
                 src={resizer}
                 className='resizer'

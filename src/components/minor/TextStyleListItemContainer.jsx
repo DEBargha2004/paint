@@ -3,7 +3,7 @@ import Appstate from '../../hooks/appstate'
 
 function TextStyleListItemContainer ({ children, display, stateKey }) {
   const {
-    inputBoxInfo: { fontFamilyIndex, lineHeightIndex }
+    inputBoxInfo: { fontFamilyIndex, lineHeightIndex },setInputBoxInfo
   } = useContext(Appstate)
   const ListBox = useRef(null)
   const indexOfThis = () => {
