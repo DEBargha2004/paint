@@ -33,7 +33,6 @@ function Dragg ({ children, dragevent, position, cancel }) {
   const handleMouseMove = e => {
     if (dragEvents.mousePress && !dragEvents.mouseLeft && dragEvents.drag) {
       const { pageX, pageY } = e
-      console.log(pageX,pageY);
 
       const changeX = pageX - dragEvents.pageX
       const changeY = pageY - dragEvents.pageY
@@ -41,7 +40,6 @@ function Dragg ({ children, dragevent, position, cancel }) {
       const top = dragRef.current.offsetTop
       const left = dragRef.current.offsetLeft
 
-      console.log(dragevent);
 
       setDragEvents(prev => ({
         ...prev,

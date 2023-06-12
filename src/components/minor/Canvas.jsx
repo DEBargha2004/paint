@@ -12,6 +12,7 @@ import { compareImage } from '../../functions/compareImage'
 import Dragg from './Dragg'
 import { isNumber } from '../../functions/isNumber'
 import DomToImage from 'dom-to-image'
+import { hasData } from '../../functions/hasData'
 const Canvas = () => {
   const {
     selected,
@@ -53,11 +54,6 @@ const Canvas = () => {
   const canvasRef = useRef(null)
 
   let [dataSet, index] = canvasData
-
-  const [textboxBound, setTextboxBound] = useState({
-    boundX: true,
-    boundY: true
-  })
 
   // const [copiedCanvasData,setCopiedCanvasData] = useState([...canvasData])
 
@@ -111,16 +107,19 @@ const Canvas = () => {
       canvas.height
     )
     const savedCanvasData = dataSet[index]
-    if (!compareImage(currentCanvasData, savedCanvasData)) {
+    if (!compareImage(currentCanvasData, savedCanvasData) || !dataSet[index]) {
       setCanvasData(prev => {
         let [dataSet, index] = prev
-        dataSet[index] = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        dataSet[index] = canvasData
+        
         return [dataSet, index]
       })
 
       setUndoStack(prev => {
-        !prev[index] ? (prev[index] = []) : null
-        prev[index].push(ctx.getImageData(0, 0, canvas.width, canvas.height))
+        !prev[index] ? (prev[index] = [null]) : null
+        const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        hasData(canvasData) ? prev[index].push(canvasData) : null
         return [...prev]
       })
 
@@ -563,7 +562,6 @@ const Canvas = () => {
     const resizer = document.querySelector('.resizer')
     const domimage = document.getElementById('domimage')
     const handleMouseupInWindow = e => {
-      console.log(parentCanvas, resizer, domimage, e.target)
       if (
         imageDataInDOM.height &&
         imageDataInDOM.width &&
