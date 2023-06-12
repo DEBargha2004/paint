@@ -19,17 +19,14 @@ function Navbar () {
   const handleUndo = () => {
     const currentIndex = canvasData[1]
     const lastItemOfUndo = undoStack[currentIndex].slice(-1)[0]
-    console.log('this is undoredo button 1',lastItemOfUndo)
 
     if (lastItemOfUndo) {
-      console.log('entered condition 2')
       setUndoStack(prev => {
         // prev = [...prev[currentIndex].slice(0,-1)]
         const clone = prev.map(stack => [...stack])
         clone[currentIndex] = clone[currentIndex].slice(0,-1)
         return [...clone]
       })
-      console.log(undoStack[0].length)
       setRedoStack(prev => {
         const clone = deepClone(prev)
         clone[currentIndex] = [...clone[currentIndex],lastItemOfUndo]
@@ -38,10 +35,8 @@ function Navbar () {
       setCanvasData(prevCanvasData => {                           //removing
         let [dataSet, index] = prevCanvasData
         dataSet[index] = undoStack[currentIndex].slice(-2)[0]
-        // console.log(undoStack[currentIndex].slice(-1)[0],undoStack)
         return [[...dataSet], index]
       })
-      console.log('undo redo performed')
       setHasUndoRedoPerformed(true)
     }
   }
@@ -49,7 +44,6 @@ function Navbar () {
   const handleRedo = () => {
     const currentIndex = canvasData[1]
     const lastItemOfRedo = redoStack[currentIndex].slice(-1)[0]
-    console.log(lastItemOfRedo, redoStack[currentIndex])
     if (lastItemOfRedo) {
       setRedoStack(prev => {
         const clone = prev.map(stack => [...stack])
@@ -64,7 +58,6 @@ function Navbar () {
       setCanvasData(prevCanvasData => {                   // adding
         let [dataSet, index] = prevCanvasData
         dataSet[index] = lastItemOfRedo
-        console.log(redoStack)
         return [[...dataSet], index]
       })
       setHasUndoRedoPerformed(true)
@@ -72,7 +65,6 @@ function Navbar () {
   }
 
   const handleDownload = () => {
-    console.log(height, width)
     let [dataSet, index] = canvasData
     if (dataSet.length) {
       const doc = new jsPDF({

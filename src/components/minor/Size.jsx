@@ -28,6 +28,8 @@ function Size () {
         return 100
       }else if(selected === '201d'){
         return 16
+      }else if(selected === 105){
+        return 1
       }
     }
     setMax(maxRange)
@@ -44,15 +46,17 @@ function Size () {
     <ToolBoxWrapper right>
       <div
         ref={sizeRef}
-        className='h-full flex flex-col justify-between items-center px-3 relative'
+        className={`h-full flex flex-col justify-between items-center px-3 relative ${(selected === 105 || selected === 102) && `cursor-not-allowed opacity-40`}`}
       >
         <div
-          className={`mt-6 p-1 hover:bg-slate-100 ${
+          className={`mt-6 p-1 ${selected !== 102 && selected !== 105 && `hover:bg-slate-100`} ${
             showList &&
             'rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col justify-center items-center'
           }`}
           onClick={() => {
-            setShowList(prev => !prev)
+            setShowList(prev => {
+              if(selected !== 102 && selected !== 105) return !prev
+            })
           }}
         >
           <img src={size[0].url} alt='' className='h-10' />
@@ -63,7 +67,7 @@ function Size () {
           />
         </div>
         <ToolBoxTitle>Size</ToolBoxTitle>
-        {showList ? (
+        {showList &&(selected !== 105 || selected !== 102) ? (
           <div className='absolute z-10 bottom-[-10px] text-black w-fit p-4 rounded-lg bg-white border-[1px] border-[#00000036]'>
             <input
               type='range'

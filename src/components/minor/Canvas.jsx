@@ -88,7 +88,6 @@ const Canvas = () => {
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    console.log('mouse up')
     if (selected === 101 || selected === 103 || selected === 104 || !selected) {
       saveCanvasData({ canvas, ctx })
     }
@@ -281,7 +280,6 @@ const Canvas = () => {
       const { x, y } = document.querySelector('canvas').getBoundingClientRect()
       const mousePosY = pageY - documentScrollTop - y
       const mousePosX = pageX - x
-      console.table(pageY,y,documentScrollTop,mousePosY);
       setSelectedImageData(prev => ({
         ...prev,
         x: mousePosX + 5,
@@ -476,14 +474,12 @@ const Canvas = () => {
     inputBoxInfo.value
   ])
   useEffect(() => {
-    console.log(index, dataSet)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     dataSet[index]
       ? ctx.putImageData(dataSet[index], 0, 0)
       : ctx.clearRect(0, 0, canvas.width, canvas.height)
     setIsSwapped(false)
-    console.log('undo redo performed', hasUndoRedoPerformed)
     setHasUndoRedoPerformed(false)
   }, [index, dataSet.length, isSwapped, hasUndoRedoPerformed]) // when selected slide changes index changes
   // when slide is deleted index is not changed
@@ -563,17 +559,30 @@ const Canvas = () => {
     }
   }, [selectedImageData.image])
   useEffect(() => {
-    const handleMouseupInWindow = () => {
-      setImageDataInDOM(prev => ({
-        ...prev,
-        enableResizing: false,
-        showOverview: false,
-        isOverViewing: false
-      }))
+    const parentCanvas = canvasRef.current
+    const resizer = document.querySelector('.resizer')
+    const domimage = document.getElementById('domimage')
+    const handleMouseupInWindow = e => {
+      console.log(parentCanvas, resizer, domimage, e.target)
+      if (
+        imageDataInDOM.height &&
+        imageDataInDOM.width &&
+        e.target !== parentCanvas &&
+        e.target !== resizer &&
+        e.target !== domimage
+      ) {
+        setImageDataInDOM(prev => ({
+          ...prev,
+          enableResizing: false,
+          showOverview: false,
+          isOverViewing: false,
+          clicked: 1
+        }))
+      }
     }
     window.addEventListener('mouseup', handleMouseupInWindow)
     return () => window.removeEventListener('mouseup', handleMouseupInWindow)
-  }, [])
+  }, [imageDataInDOM])
   return (
     <div
       id='canvasParent'
@@ -695,7 +704,9 @@ const Canvas = () => {
             />
             <div
               className={`h-5 w-5 bg-transparent absolute bottom-0 right-0 flex justify-center items-center ${
-                imageDataInDOM.showOverview ? `cursor-crosshair` : `cursor-nwse-resize`
+                imageDataInDOM.showOverview
+                  ? `cursor-crosshair`
+                  : `cursor-nwse-resize`
               } z-10`}
             >
               <img
