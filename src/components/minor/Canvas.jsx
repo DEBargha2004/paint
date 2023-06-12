@@ -13,6 +13,7 @@ import Dragg from './Dragg'
 import { isNumber } from '../../functions/isNumber'
 import DomToImage from 'dom-to-image'
 import { hasData } from '../../functions/hasData'
+import { deepClone } from '../../functions/deepClone'
 const Canvas = () => {
   const {
     selected,
@@ -112,14 +113,15 @@ const Canvas = () => {
         let [dataSet, index] = prev
         const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         dataSet[index] = canvasData
-        
+
         return [dataSet, index]
       })
 
       setUndoStack(prev => {
         !prev[index] ? (prev[index] = [null]) : null
         const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        hasData(canvasData) ? prev[index].push(canvasData) : null
+        prev = deepClone(prev)
+        if (hasData(canvasData)) prev[index].push(canvasData)
         return [...prev]
       })
 

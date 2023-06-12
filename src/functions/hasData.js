@@ -1,4 +1,5 @@
 export function hasData (data) {
+    console.log('hasData is called');
   if (!data) return false
 
   for (let i = 0; i < data.data.length; i++) {
