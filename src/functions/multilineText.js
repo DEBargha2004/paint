@@ -22,6 +22,5 @@ export const print_MultilineText = (
       setInputBoxInfo(prev => ({ ...prev, visible: false }))
     })
     .catch(err => {
-      console.log(err)
     })
 }

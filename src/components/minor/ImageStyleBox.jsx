@@ -9,7 +9,6 @@ function ImageStyleBox () {
   useEffect(() => {
     const handleKeyPress = e => {
       if (selected === 102) {
-        console.log(e.key)
         if (e.key === 'B') {
           setImageDataInDOM(prev => ({ ...prev, boundary: !prev.boundary }))
         } else if (e.key === 'F') {

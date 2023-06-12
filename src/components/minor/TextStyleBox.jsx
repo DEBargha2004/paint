@@ -21,7 +21,6 @@ function TextStyleBox () {
   const handleKeyPress = e => {
     if (selected === 104) {
       const key = e.key
-      console.log(key);
       // if (key === 'L') {
       //   setInputBoxInfo(prev => ({ ...prev, alignmentIndex: 0 }))
       // } else if (key === 'C') {

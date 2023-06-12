@@ -14,8 +14,6 @@ function ImageDeco ({ decoration, url, label, id }) {
     if (hoveredLabel.current) {
       const translateX =
         (StyleIcon.current.offsetWidth - hoveredLabel.current.offsetWidth) / 2
-
-      console.log(StyleIcon.current.offsetWidth,hoveredLabel.current.offsetWidth);
       hoveredLabel.current.style.left = `${translateX}px`
     }
   }, [isHovering])

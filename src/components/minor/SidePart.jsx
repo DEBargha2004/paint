@@ -8,12 +8,7 @@ import { addInUndoandRedo } from '../../functions/addInUndoandRedo'
 function SidePart () {
   const { canvasData, setCanvasData, setIsSwapped } = useContext(Appstate)
   const [{ s1, s2 }, setSlideSwap] = useState({ s1: null, s2: null })
-  const handleDragOver = e => {
-    // console.log('dragging over',e)
-  }
-  const handleDrop = e => {
-    console.log(e)
-  }
+
   // const handleSwap = () => {
   //   if (s1 && s2) {
   //     let [slides] = canvasData

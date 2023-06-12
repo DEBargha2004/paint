@@ -44,7 +44,6 @@ function SketchTools () {
     webDialog.current.showModal()
     document.documentElement.style.overflow = 'hidden'
     setDisplayOptions(prev => ({ ...prev, display: true }))
-    console.log('handleWebSearchModal')
   }
 
   const handleFormSubmit = e => {
@@ -110,7 +109,6 @@ function SketchTools () {
       ) {
         webDialog.current.close()
         document.documentElement.style.overflow = 'scroll'
-        console.log(document.documentElement.style)
         setDisplayOptions(prev => ({ ...prev, display: false }))
         setUrlExistance(prev => ({
           ...prev,
@@ -153,7 +151,6 @@ function SketchTools () {
                 setSelected(item.id)
               }}
               onMouseEnter={() => {
-                console.log('onMouseEnter')
                 setDisplayOptions(prev => ({
                   ...prev,
                   isHovering: true,
@@ -161,7 +158,6 @@ function SketchTools () {
                 }))
               }}
               onMouseLeave={() => {
-                console.log('onMouseLeave')
                 setDisplayOptions(prev => ({
                   ...prev,
                   isHovering: false,

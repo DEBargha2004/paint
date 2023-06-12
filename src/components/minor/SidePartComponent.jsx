@@ -36,7 +36,6 @@ function SidePartComponent ({ Index }) {
       if (index !== 0) {
         index--
       }
-      console.log('Index is', index)
       return [dataSet, index]
     })
 

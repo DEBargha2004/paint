@@ -122,9 +122,7 @@ const Canvas = () => {
         const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         prev = deepClone(prev)
 
-        console.log(hasData(canvasData), 'this is containing data');
         if (hasData(canvasData)) {
-          console.log('has canvasdata, inside set undo stack')
           prev[index].push(canvasData)
         }
         return [...prev]
