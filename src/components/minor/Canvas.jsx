@@ -121,7 +121,9 @@ const Canvas = () => {
         !prev[index] ? (prev[index] = [null]) : null
         const canvasData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         prev = deepClone(prev)
-        if (hasData(canvasData)) prev[index].push(canvasData)
+        if (hasData(canvasData)){
+          console.log('has canvasdata, inside set undo stack');
+          prev[index].push(canvasData)}
         return [...prev]
       })
 
