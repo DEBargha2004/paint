@@ -7,7 +7,11 @@ import { addInUndoandRedo } from '../../functions/addInUndoandRedo'
 
 function SidePart () {
   const { canvasData, setCanvasData, setIsSwapped } = useContext(Appstate)
-
+  const [{ s1, s2 }, setSlideSwap] = useState({ s1: null, s2: null })
+  const handleDragOver = e => {
+  }
+  const handleDrop = e => {
+  }
   // const handleSwap = () => {
   //   if (s1 && s2) {
   //     let [slides] = canvasData
@@ -68,6 +72,7 @@ function SidePart () {
         {provided => (
           <div
             ref={provided.innerRef}
+            onDragOver={handleDragOver}
             onDrop={handleDrop}
             className='h-[93%] z-0 mt-10 w-full flex flex-col items-center overflow-y-scroll sidepart transition-all'
             {...provided.droppableProps}
