@@ -85,7 +85,7 @@ const Canvas = () => {
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (selected === 101 || selected === 103 || selected === 104 || !selected) {
+    if (selected === 101 || selected === 103 || selected === 104 || !selected || selected.includes('201')) {
       saveCanvasData({ canvas, ctx })
     }
 
@@ -231,6 +231,7 @@ const Canvas = () => {
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
     ctx.lineWidth = selectedStyle.size
     ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
 
     if (isMouseDown) {
       if (selected === 101) {
