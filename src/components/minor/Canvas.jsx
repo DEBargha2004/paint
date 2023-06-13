@@ -361,27 +361,7 @@ const Canvas = () => {
 
     if (selected === 102 && selectedImageData.image) {
       if (imageDataInDOM.clicked) {
-        DomToImage.toPng(document.getElementById('domimage')).then(url => {
-          const image = new Image()
-          image.src = url
-          image.onload = () => {
-            ctx.drawImage(
-              image,
-              imageDataInDOM.left,
-              imageDataInDOM.top,
-              imageDataInDOM.width,
-              imageDataInDOM.height
-            )
-            setImageDataInDOM(prev => ({
-              ...prev,
-              height: null,
-              width: null,
-              clicked: 0
-            }))
-            setSelected(null)
-            saveCanvasData({ canvas, ctx })
-          }
-        })
+        saveDOMImageInCanvas()
       } else {
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
@@ -397,6 +377,35 @@ const Canvas = () => {
     }
   }
 
+  const saveDOMImageInCanvas = () => {
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    DomToImage.toPng(document.getElementById('domimage')).then(url => {
+      const image = new Image()
+      image.src = url
+      image.onload = () => {
+        ctx.drawImage(
+          image,
+          imageDataInDOM.left,
+          imageDataInDOM.top,
+          imageDataInDOM.width,
+          imageDataInDOM.height
+        )
+        setImageDataInDOM(prev => ({
+          ...prev,
+          height: null,
+          width: null,
+          clicked: 0
+        }))
+        setSelected(null)
+        saveCanvasData({ canvas, ctx })
+      }
+    })
+  }
+
+  //test start
+
+  //test end
   // value addition of inputbox start
 
   const handleInputBoxChange = e => {
@@ -586,6 +595,20 @@ const Canvas = () => {
     window.addEventListener('mouseup', handleMouseupInWindow)
     return () => window.removeEventListener('mouseup', handleMouseupInWindow)
   }, [imageDataInDOM])
+
+  useEffect(() => {
+    const parent = document.getElementById('canvasParent')
+
+    const handleDoubleClick = () => {
+      if (imageDataInDOM.height || imageDataInDOM.width) {
+        saveDOMImageInCanvas()
+      }
+    }
+
+    parent.addEventListener('dblclick', handleDoubleClick)
+    return () => parent.removeEventListener('dblclick', handleDoubleClick)
+  }, [imageDataInDOM])
+
   return (
     <div
       id='canvasParent'
