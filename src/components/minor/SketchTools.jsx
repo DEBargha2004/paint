@@ -194,7 +194,7 @@ function SketchTools () {
                   <label htmlFor='select-img'>
                     <img
                       src={`https://cdn-icons-png.flaticon.com/512/2933/2933245.png`}
-                      className='hover:bg-slate-100 p-3 h-12'
+                      className='hover:bg-slate-100 p-3 h-12 cursor-pointer'
                     />
                   </label>
                 </motion.div>

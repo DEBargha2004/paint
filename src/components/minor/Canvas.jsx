@@ -14,11 +14,13 @@ import { isNumber } from '../../functions/isNumber'
 import DomToImage from 'dom-to-image'
 import { hasData } from '../../functions/hasData'
 import { deepClone } from '../../functions/deepClone'
+
 const Canvas = () => {
   const {
     selected,
     setSelected,
     selectedStyle,
+    setSelectedStyle,
     canvasData,
     setCanvasData,
     setUndoStack,
@@ -85,12 +87,21 @@ const Canvas = () => {
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (selected === 101 || selected === 103 || selected === 104 || !selected || selected.includes('201')) {
+    if (
+      selected === 101 ||
+      selected === 103 ||
+      selected === 104 ||
+      !selected ||
+      selected
+        ? String(selected).includes('201')
+        : null
+    ) {
       saveCanvasData({ canvas, ctx })
     }
 
     resizing.current = false
     if (selected === 102) {
+      console.log('triggered in handleMouseUp')
       setImageDataInDOM(prev => ({
         ...prev,
         enableResizing: false,
@@ -150,7 +161,8 @@ const Canvas = () => {
         enableResizing: false,
         showOverview: false,
         enableDragging: false,
-        isOverViewing: false
+        isOverViewing: false,
+        clicked:1
       }))
     }
   }
@@ -336,6 +348,7 @@ const Canvas = () => {
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (selected === 104) {
+      // inputbox
       if (!inputBoxInfo.visible) {
         setInputBoxInfo(prev => ({
           ...prev,
@@ -356,11 +369,11 @@ const Canvas = () => {
         )
       isVisible.current = !isVisible.current
       setInputBoxInfo(prev => ({ ...prev, value: '' }))
-    } else {
-      setInputBoxInfo(prev => ({ ...prev, visible: false }))
     }
 
     if (selected === 102 && selectedImageData.image) {
+      console.log('handleClick is triggered')
+      // paste-image
       if (imageDataInDOM.clicked) {
         saveDOMImageInCanvas()
       } else {
@@ -368,13 +381,33 @@ const Canvas = () => {
       }
     }
     if (selected === 105) {
+      //color-bucket
       let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const floodfill = new FloodFill(imageData)
+
+      console.log(selectedStyle.color)
 
       floodfill.fill(rgba(selectedStyle.color), offsetX, offsetY, 0)
 
       ctx.putImageData(floodfill.imageData, 0, 0)
       saveCanvasData({ canvas, ctx })
+    }
+    if (selected === 106) {
+      //color-picker
+      const imageData = ctx.getImageData(
+        offsetX,
+        offsetY,
+        canvas.width,
+        canvas.height
+      )
+
+      const [red, green, blue, alpha] = imageData.data
+      setSelectedStyle(prev => ({
+        ...prev,
+        color: { r: red, g: green, b: blue, a: alpha / 255 }
+      }))
+
+      setSelected(null)
     }
   }
 
@@ -578,12 +611,16 @@ const Canvas = () => {
     const domimage = document.getElementById('domimage')
     const handleMouseupInWindow = e => {
       if (
+        // if outside canvas
         imageDataInDOM.height &&
         imageDataInDOM.width &&
         e.target !== parentCanvas &&
         e.target !== resizer &&
         e.target !== domimage
       ) {
+        console.log(
+          'triggered in useEffect used for setting while outside canvas'
+        )
         setImageDataInDOM(prev => ({
           ...prev,
           enableResizing: false,
@@ -727,6 +764,7 @@ const Canvas = () => {
               } cursor-move top-0-left-0 z-0 w-full h-full`}
               style={{ userSelect: 'none' }}
               onMouseMove={handleMouseMoveOverDOMImage}
+              onMouseUp={handleMouseUpOverDOMImage}
               alt=''
             />
             <div
@@ -752,7 +790,11 @@ const Canvas = () => {
                 onMouseUp={() =>
                   setImageDataInDOM(prev => ({
                     ...prev,
-                    enableResizing: false
+                    enableResizing: false,
+                    showOverview: false,
+                    enableDragging: false,
+                    isOverViewing: false,
+                    clicked:1
                   }))
                 }
                 onDragStart={e => e.preventDefault()}

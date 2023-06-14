@@ -15,6 +15,7 @@ function App () {
     height: 700,
     width: window.innerWidth - 400
   })
+  const apiKey = 'AIzaSyDj1E2jQJbiHSxM9Y13F-LzbYYIhHQzBeo'
   const [undoStack, setUndoStack] = useState([[null]])
   const [redoStack, setRedoStack] = useState([[null]])
   const [inputBoxInfo, setInputBoxInfo] = useState({
