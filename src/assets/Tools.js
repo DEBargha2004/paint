@@ -62,7 +62,7 @@ export const colors =
 
 export const brushList = [
   {
-    id: '201a',
+    id: 2011,
     name: 'Natural Pencil'
   },
   // {
@@ -74,7 +74,7 @@ export const brushList = [
   //   name: "pen",
   // },
   {
-    id: '201d',
+    id: 2014,
     name: 'spray'
   }
 ]

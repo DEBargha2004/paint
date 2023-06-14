@@ -92,10 +92,10 @@ const Canvas = () => {
       selected === 103 ||
       selected === 104 ||
       !selected ||
-      selected
-        ? String(selected).includes('201')
-        : null
+      selected === 2011 ||
+      selected === 2014
     ) {
+      console.log('mouse id up in handle mouseup')
       saveCanvasData({ canvas, ctx })
     }
 
@@ -162,7 +162,7 @@ const Canvas = () => {
         showOverview: false,
         enableDragging: false,
         isOverViewing: false,
-        clicked:1
+        clicked: 1
       }))
     }
   }
@@ -794,7 +794,7 @@ const Canvas = () => {
                     showOverview: false,
                     enableDragging: false,
                     isOverViewing: false,
-                    clicked:1
+                    clicked: 1
                   }))
                 }
                 onDragStart={e => e.preventDefault()}

@@ -24,7 +24,7 @@ function Brush() {
             ref={brushRef}
             key={index}
             className={`relative w-fit mt-6 p-1 ${
-              String(selected).includes("201") &&
+              (selected === 2011 || selected === 2014) &&
               "rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col items-center justify-between"
             }`}
           >
