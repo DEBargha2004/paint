@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { isNumber } from '../../functions/isNumber'
 
 function SketchTools () {
-  const { selected, setSelected, setSelectedImageData } = useContext(Appstate)
+  const { selected, setSelected, setSelectedImageData,imageDataInDOM } = useContext(Appstate)
   const [{ isHovering, display, webSearch }, setDisplayOptions] = useState({
     isHovering: false,
     display: false,
@@ -92,7 +92,7 @@ function SketchTools () {
       }
     }
   }
-  useEffect(() => {
+  useEffect(() => {                                           // for closing the dialog
     const handleClick = e => {
       const { top, left, height, width } =
         webDialog.current.getBoundingClientRect()
@@ -143,7 +143,7 @@ function SketchTools () {
             <div
               key={index}
               className={`p-2 px-[10px] relative bg-red flex justify-center items-center cursor-pointer ${
-                selected === item.id
+                selected === item.id && !imageDataInDOM.getting_used
                   ? 'rounded-md outline outline-1 outline-slate-400 bg-slate-100'
                   : ''
               } hover:bg-slate-100`}
@@ -161,12 +161,12 @@ function SketchTools () {
                 setDisplayOptions(prev => ({
                   ...prev,
                   isHovering: false,
-                  display: selected === item.id ? true : false
+                  display: selected === item.id && !imageDataInDOM.getting_used ? true : false
                 }))
               }}
             >
               <img src={item.url} className='h-6 cursor-pointer' />
-              {(isHovering || selected === item.id) && display ? (
+              {(isHovering || (selected === item.id && !imageDataInDOM.getting_used)) && display ? (
                 <motion.div
                   layout
                   initial={{ opacity: 0, bottom: `-80px` }}

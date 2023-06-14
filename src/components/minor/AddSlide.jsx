@@ -12,7 +12,9 @@ function AddSlide () {
     undoStack,
     redoStack,
     setCanvasData,
-    setHasUndoRedoPerformed
+    setHasUndoRedoPerformed,
+    setSelected,
+    selected
   } = useContext(Appstate)
   function addNewSlide () {
     setCanvasData(prev => {
@@ -29,16 +31,31 @@ function AddSlide () {
     })
   }
 
+  const handleClick = () => {
+    setSelected(401)
+  }
 
   return (
     <ToolBoxWrapper right>
-      <div className='h-[100px] flex justify-center items-center'>
-        <img
-          src='	https://cdn-icons-png.flaticon.com/512/7163/7163714.png'
-          alt=''
-          className='h-16 mr-2 p-1 transition-all hover:scale-110 rounded-md cursor-pointer'
-          onClick={addNewSlide}
-        />
+      <div className='flex h-[100px] pt-3'>
+        <div className='flex justify-center items-start'>
+          <img
+            src='https://cdn-icons-png.flaticon.com/512/3601/3601998.png'
+            alt=''
+            className={`h-14 mr-2 p-3 transition-all rounded-md cursor-pointer ${
+              selected === 401 && `bg-slate-200`
+            }`}
+            onClick={handleClick}
+          />
+        </div>
+        <div className='flex justify-center items-start'>
+          <img
+            src='	https://cdn-icons-png.flaticon.com/512/7163/7163714.png'
+            alt=''
+            className='h-16 mr-2 p-1 transition-all hover:scale-110 rounded-md cursor-pointer'
+            onClick={addNewSlide}
+          />
+        </div>
       </div>
       <ToolBoxTitle>Add New</ToolBoxTitle>
     </ToolBoxWrapper>

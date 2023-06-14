@@ -52,7 +52,8 @@ function App () {
     enableDragging: false,
     clicked: 0,
     initialDraggingX: null,
-    initialDraggingY: null
+    initialDraggingY: null,
+    getting_used:false
   })
   const [isSwapped, setIsSwapped] = useState(false)
   const [hasUndoRedoPerformed, setHasUndoRedoPerformed] = useState(false)
@@ -88,7 +89,8 @@ function App () {
           setIsSwapped,
           setHasUndoRedoPerformed,
           hasUndoRedoPerformed,
-          canvasDimensions
+          canvasDimensions,
+          imageDataInDOM
         }}
       >
         <div className='sticky  z-10'>

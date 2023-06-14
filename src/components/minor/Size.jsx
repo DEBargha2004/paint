@@ -16,7 +16,7 @@ function Size () {
     if (!selected) return
 
     const maxRange = () => {
-      if (selected === '201a') {
+      if (selected === 2011) {
         return 4
       } else if (selected === '201b') {
         return 8
@@ -26,9 +26,9 @@ function Size () {
         return 16
       } else if (selected === 103 || selected === 104) {
         return 100
-      }else if(selected === '201d'){
-        return 16
-      }else if(selected === 105){
+      } else if (selected === 2014) {
+        return 100
+      } else if (selected === 105) {
         return 1
       }
     }
@@ -46,16 +46,22 @@ function Size () {
     <ToolBoxWrapper right>
       <div
         ref={sizeRef}
-        className={`h-full flex flex-col justify-between items-center px-3 relative ${(selected === 105 || selected === 102) && `cursor-not-allowed opacity-40`}`}
+        className={`h-full flex flex-col justify-between items-center px-3 relative ${
+          (selected === 105 || selected === 102 || !selected) &&
+          `cursor-not-allowed opacity-40`
+        }`}
       >
         <div
-          className={`mt-6 p-1 ${selected !== 102 && selected !== 105 && `hover:bg-slate-100`} ${
+          className={`mt-6 p-1 ${
+            !(selected === 102 || selected === 105 || !selected) &&
+            `hover:bg-slate-100`
+          } ${
             showList &&
             'rounded-md outline outline-1 outline-slate-400 bg-slate-100 flex flex-col justify-center items-center'
           }`}
           onClick={() => {
             setShowList(prev => {
-              if(selected !== 102 && selected !== 105) return !prev
+              if (!(selected === 102 || selected === 105 || !selected)) return !prev
             })
           }}
         >
@@ -67,7 +73,7 @@ function Size () {
           />
         </div>
         <ToolBoxTitle>Size</ToolBoxTitle>
-        {showList &&(selected !== 105 || selected !== 102) ? (
+        {showList && (selected !== 105 || selected !== 102) ? (
           <div className='absolute z-10 bottom-[-10px] text-black w-fit p-4 rounded-lg bg-white border-[1px] border-[#00000036]'>
             <input
               type='range'

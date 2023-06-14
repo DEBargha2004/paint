@@ -80,7 +80,8 @@ function Dragg ({ children, dragevent, position, cancel }) {
         width: children.props.style.width,
         position: 'absolute',
         top: `${position.y}px`,
-        left: `${position.x}px`
+        left: `${position.x}px`,
+        zIndex:10
       }}
     >
       {children}

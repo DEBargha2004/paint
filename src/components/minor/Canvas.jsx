@@ -44,7 +44,13 @@ const Canvas = () => {
     initialX: null,
     initialY: null
   })
-  const [refresh, setRefresh] = useState(false)
+  const [selection, setSelection] = useState({
+    initialize: false,
+    initialY: null,
+    initialX: null,
+    finalY: null,
+    finalX: null
+  })
 
   const resizingDataRef = useRef({
     initialX: null,
@@ -58,8 +64,6 @@ const Canvas = () => {
 
   let [dataSet, index] = canvasData
 
-  // const [copiedCanvasData,setCopiedCanvasData] = useState([...canvasData])
-
   const handleMouseDown = e => {
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
     setIsMouseDown(true)
@@ -69,7 +73,7 @@ const Canvas = () => {
       initialX: pageX,
       initialY: pageY
     }))
-    if (selected === 102 && selectedImageData.image) {
+    if (selectedImageData.image) {
       if (!imageDataInDOM.height && !imageDataInDOM.width) {
         setImageDataInDOM(prev => ({
           ...prev,
@@ -80,6 +84,13 @@ const Canvas = () => {
           enableResizing: true
         }))
       }
+    } else if (selected === 401) {
+      setSelection(prev => ({
+        ...prev,
+        initialize: true,
+        initialX: offsetX,
+        initialY: offsetY
+      }))
     }
   }
 
@@ -100,7 +111,7 @@ const Canvas = () => {
     }
 
     resizing.current = false
-    if (selected === 102) {
+    if (selectedImageData.image) {
       console.log('triggered in handleMouseUp')
       setImageDataInDOM(prev => ({
         ...prev,
@@ -108,6 +119,210 @@ const Canvas = () => {
         showOverview: false,
         isOverViewing: false
       }))
+    }
+    if (selected === 401) {
+      const left =
+        selection.initialX < selection.finalX
+          ? selection.initialX
+          : selection.finalX
+      const top =
+        selection.initialY < selection.finalY
+          ? selection.initialY
+          : selection.finalY
+
+      const width = Math.abs(selection.initialX - selection.finalX)
+      const height = Math.abs(selection.initialY - selection.finalY)
+
+      const imageData = ctx.getImageData(left, top, width, height)
+
+      const newCanvas = document.createElement('canvas')
+      const newCtx = canvas.getContext('2d')
+      newCanvas.width = width
+      newCanvas.height = height
+      newCtx.putImageData(imageData,0,0)
+      const imageUrl = newCanvas.toDataURL()
+      console.log(imageUrl);
+
+      // ctx.fillStyle = 'white'
+      // ctx.fillRect(left,top,width,height)
+
+      setSelectedImageData(prev => ({
+        ...prev,
+        image: imageUrl,
+        x: left,
+        y: top,
+        naturalWidth: width,
+        natiralHeight: height
+      }))
+      setImageDataInDOM(prev => ({
+        ...prev,
+        height,
+        width,
+        left,
+        top,
+        getting_used: true
+      }))
+    }
+  }
+
+  const handleMouseMove = e => {
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
+    ctx.lineWidth = selectedStyle.size
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+
+    if (isMouseDown) {
+      if (selected === 101) {
+        ctx.strokeStyle = rgba(selectedStyle.color)
+
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
+
+        setLast([offsetX, offsetY])
+      } else if (selected === 103) {
+        ctx.strokeStyle = 'white'
+
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
+
+        setLast([offsetX, offsetY])
+      } else if (selected === 2011) {
+        const selectedColor = chroma(rgba(selectedStyle.color))
+        const strokeColor = selectedColor.brighten(1)
+        ctx.strokeStyle = strokeColor.hex()
+        ctx.beginPath()
+        ctx.moveTo(lastX, lastY)
+        ctx.lineTo(offsetX, offsetY)
+        ctx.stroke()
+
+        setLast([offsetX, offsetY])
+      } else if (selected === 2014) {
+        // spray
+        const density = 15
+        ctx.fillStyle = rgba(selectedStyle.color)
+
+        for (let i = 0; i < density; i++) {
+          const rectX =
+            offsetX + position((Math.random() * selectedStyle.size) / 2)
+          const rectY =
+            offsetY + position((Math.random() * selectedStyle.size) / 2)
+          const rectLen = 1.4
+          const rectWid = 1.4
+          ctx.fillRect(rectX, rectY, rectWid, rectLen)
+        }
+
+        setLast([offsetX, offsetY])
+      }
+    }
+    if (imageDataInDOM.showOverview) {
+      const documentScrollTop = document.querySelector('html').scrollTop
+      const { x, y } = document.querySelector('canvas').getBoundingClientRect()
+      const mousePosY = pageY - documentScrollTop - y
+      const mousePosX = pageX - x
+      setSelectedImageData(prev => ({
+        ...prev,
+        x: mousePosX + 5,
+        y: mousePosY + 5
+      }))
+    }
+    if (imageDataInDOM.enableResizing) {
+      let { imageHeight, imageWidth } = ImageResizeDimensions({
+        pageX,
+        pageY
+      })
+
+      const boundX = isBoundX(imageDataInDOM.left, imageDataInDOM.width, canvas)
+      const boundY = isBoundY(imageDataInDOM.top, imageDataInDOM.height, canvas)
+
+      if (imageDataInDOM.boundary) {
+        imageWidth = boundX ? imageWidth : imageDataInDOM.width
+        imageHeight = boundY ? imageHeight : imageDataInDOM.height
+      }
+
+      setImageDataInDOM(prev => ({
+        ...prev,
+        height: imageHeight,
+        width: imageWidth,
+        initialX: pageX,
+        initialY: pageY
+      }))
+    }
+    if (selected === 401) {
+      setSelection(prev => ({ ...prev, finalX: offsetX, finalY: offsetY }))
+    }
+  }
+
+  const handleClick = e => {
+    const { offsetX, offsetY } = e.nativeEvent
+    const text = inputBoxInfo.value
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    if (selected === 104) {
+      // inputbox
+      if (!inputBoxInfo.visible) {
+        setInputBoxInfo(prev => ({
+          ...prev,
+          visible: !prev.visible,
+          x: offsetX,
+          y: offsetY
+        }))
+      }
+
+      isVisible.current &&
+        print_MultilineText(
+          InputBox,
+          inputBoxInfo,
+          setInputBoxInfo,
+          canvas,
+          ctx,
+          saveCanvasData
+        )
+      isVisible.current = !isVisible.current
+      setInputBoxInfo(prev => ({ ...prev, value: '' }))
+    }
+
+    if (selectedImageData.image) {
+      // paste-image
+      if (imageDataInDOM.clicked) {
+        saveDOMImageInCanvas()
+      } else {
+        setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
+      }
+    }
+    if (selected === 105) {
+      //color-bucket
+      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const floodfill = new FloodFill(imageData)
+
+      console.log(selectedStyle.color)
+
+      floodfill.fill(rgba(selectedStyle.color), offsetX, offsetY, 0)
+
+      ctx.putImageData(floodfill.imageData, 0, 0)
+      saveCanvasData({ canvas, ctx })
+    }
+    if (selected === 106) {
+      //color-picker
+      const imageData = ctx.getImageData(
+        offsetX,
+        offsetY,
+        canvas.width,
+        canvas.height
+      )
+
+      const [red, green, blue, alpha] = imageData.data
+      setSelectedStyle(prev => ({
+        ...prev,
+        color: { r: red, g: green, b: blue, a: alpha / 255 }
+      }))
+
+      setSelected(null)
     }
   }
 
@@ -155,16 +370,16 @@ const Canvas = () => {
   }
 
   const handleMouseUpOverDOMImage = () => {
-    if (selected === 102) {
-      setImageDataInDOM(prev => ({
-        ...prev,
-        enableResizing: false,
-        showOverview: false,
-        enableDragging: false,
-        isOverViewing: false,
-        clicked: 1
-      }))
-    }
+    // if (selected === 102) {
+    setImageDataInDOM(prev => ({
+      ...prev,
+      enableResizing: false,
+      showOverview: false,
+      enableDragging: false,
+      isOverViewing: false,
+      clicked: 1
+    }))
+    // }
   }
 
   const handleMouseMoveOverDOMImage = e => {
@@ -237,96 +452,6 @@ const Canvas = () => {
     }
   }
 
-  const handleMouseMove = e => {
-    const canvas = document.querySelector('canvas')
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
-    ctx.lineWidth = selectedStyle.size
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-
-    if (isMouseDown) {
-      if (selected === 101) {
-        ctx.strokeStyle = rgba(selectedStyle.color)
-
-        ctx.beginPath()
-        ctx.moveTo(lastX, lastY)
-        ctx.lineTo(offsetX, offsetY)
-        ctx.stroke()
-
-        setLast([offsetX, offsetY])
-      } else if (selected === 103) {
-        ctx.strokeStyle = 'white'
-
-        ctx.beginPath()
-        ctx.moveTo(lastX, lastY)
-        ctx.lineTo(offsetX, offsetY)
-        ctx.stroke()
-
-        setLast([offsetX, offsetY])
-      } else if (selected === '201a') {
-        const selectedColor = chroma(rgba(selectedStyle.color))
-        const strokeColor = selectedColor.brighten(1)
-        ctx.strokeStyle = strokeColor.hex()
-        ctx.beginPath()
-        ctx.moveTo(lastX, lastY)
-        ctx.lineTo(offsetX, offsetY)
-        ctx.stroke()
-
-        setLast([offsetX, offsetY])
-      } else if (selected === '201d') {
-        // spray
-        const density = 15
-        ctx.fillStyle = rgba(selectedStyle.color)
-
-        for (let i = 0; i < density; i++) {
-          const rectX =
-            offsetX + position((Math.random() * selectedStyle.size) / 2)
-          const rectY =
-            offsetY + position((Math.random() * selectedStyle.size) / 2)
-          const rectLen = 1.4
-          const rectWid = 1.4
-          ctx.fillRect(rectX, rectY, rectWid, rectLen)
-        }
-
-        setLast([offsetX, offsetY])
-      }
-    }
-    if (selected === 102 && imageDataInDOM.showOverview) {
-      const documentScrollTop = document.querySelector('html').scrollTop
-      const { x, y } = document.querySelector('canvas').getBoundingClientRect()
-      const mousePosY = pageY - documentScrollTop - y
-      const mousePosX = pageX - x
-      setSelectedImageData(prev => ({
-        ...prev,
-        x: mousePosX + 5,
-        y: mousePosY + 5
-      }))
-    }
-    if (selected === 102 && imageDataInDOM.enableResizing) {
-      let { imageHeight, imageWidth } = ImageResizeDimensions({
-        pageX,
-        pageY
-      })
-
-      const boundX = isBoundX(imageDataInDOM.left, imageDataInDOM.width, canvas)
-      const boundY = isBoundY(imageDataInDOM.top, imageDataInDOM.height, canvas)
-
-      if (imageDataInDOM.boundary) {
-        imageWidth = boundX ? imageWidth : imageDataInDOM.width
-        imageHeight = boundY ? imageHeight : imageDataInDOM.height
-      }
-
-      setImageDataInDOM(prev => ({
-        ...prev,
-        height: imageHeight,
-        width: imageWidth,
-        initialX: pageX,
-        initialY: pageY
-      }))
-    }
-  }
-
   const ImageResizeDimensions = ({ pageX, pageY }) => {
     const { height, width } = imageDataInDOM
     let changeInImageHeight = pageY - imageDataInDOM.initialY
@@ -340,75 +465,6 @@ const Canvas = () => {
       : changeInImageWidth
 
     return { imageHeight: changeInImageHeight, imageWidth: changeInImageWidth }
-  }
-
-  const handleClick = e => {
-    const { offsetX, offsetY } = e.nativeEvent
-    const text = inputBoxInfo.value
-    const canvas = document.querySelector('canvas')
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (selected === 104) {
-      // inputbox
-      if (!inputBoxInfo.visible) {
-        setInputBoxInfo(prev => ({
-          ...prev,
-          visible: !prev.visible,
-          x: offsetX,
-          y: offsetY
-        }))
-      }
-
-      isVisible.current &&
-        print_MultilineText(
-          InputBox,
-          inputBoxInfo,
-          setInputBoxInfo,
-          canvas,
-          ctx,
-          saveCanvasData
-        )
-      isVisible.current = !isVisible.current
-      setInputBoxInfo(prev => ({ ...prev, value: '' }))
-    }
-
-    if (selected === 102 && selectedImageData.image) {
-      console.log('handleClick is triggered')
-      // paste-image
-      if (imageDataInDOM.clicked) {
-        saveDOMImageInCanvas()
-      } else {
-        setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
-      }
-    }
-    if (selected === 105) {
-      //color-bucket
-      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const floodfill = new FloodFill(imageData)
-
-      console.log(selectedStyle.color)
-
-      floodfill.fill(rgba(selectedStyle.color), offsetX, offsetY, 0)
-
-      ctx.putImageData(floodfill.imageData, 0, 0)
-      saveCanvasData({ canvas, ctx })
-    }
-    if (selected === 106) {
-      //color-picker
-      const imageData = ctx.getImageData(
-        offsetX,
-        offsetY,
-        canvas.width,
-        canvas.height
-      )
-
-      const [red, green, blue, alpha] = imageData.data
-      setSelectedStyle(prev => ({
-        ...prev,
-        color: { r: red, g: green, b: blue, a: alpha / 255 }
-      }))
-
-      setSelected(null)
-    }
   }
 
   const saveDOMImageInCanvas = () => {
