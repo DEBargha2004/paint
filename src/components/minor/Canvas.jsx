@@ -66,7 +66,7 @@ const Canvas = () => {
   let [dataSet, index] = canvasData
 
   const handleMouseDown = e => {
-    console.log('triggered in handleMouseDown')
+    // console.log('triggered in handleMouseDown')
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
     setIsMouseDown(true)
     setLast([offsetX, offsetY])
@@ -98,7 +98,7 @@ const Canvas = () => {
   }
 
   const handleMouseUp = e => {
-    console.log('triggered in handleMouseUp')
+    // console.log('triggered in handleMouseUp')
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
@@ -110,7 +110,7 @@ const Canvas = () => {
       selected === 2011 ||
       selected === 2014
     ) {
-      console.log('mouse is up in handle mouseup meeting conditions')
+      // console.log('mouse is up in handle mouseup meeting conditions')
       saveCanvasData({ canvas, ctx })
     }
 
@@ -262,7 +262,7 @@ const Canvas = () => {
   }
 
   const handleClick = e => {
-    console.log('triggered in handleClick')
+    // console.log('triggered in handleClick')
     const { offsetX, offsetY } = e.nativeEvent
     const text = inputBoxInfo.value
     const canvas = document.querySelector('canvas')
@@ -294,10 +294,10 @@ const Canvas = () => {
     if (selectedImageData.image) {
       // paste-image
       if (imageDataInDOM.clicked) {
-        console.log('image is pasted')
+        // console.log('image is pasted')
         saveDOMImageInCanvas()
       } else {
-        console.log('clicked is incremented')
+        // console.log('clicked is incremented')
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
     }
@@ -306,7 +306,7 @@ const Canvas = () => {
       let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const floodfill = new FloodFill(imageData)
 
-      console.log(selectedStyle.color)
+      // console.log(selectedStyle.color)
 
       floodfill.fill(rgba(selectedStyle.color), offsetX, offsetY, 0)
 
@@ -333,7 +333,7 @@ const Canvas = () => {
   }
 
   const saveCanvasData = ({ canvas, ctx }) => {
-    console.log('triggered in saveCanvasData')
+    // console.log('triggered in saveCanvasData')
     const currentCanvasData = ctx.getImageData(
       0,
       0,
@@ -377,7 +377,7 @@ const Canvas = () => {
   }
 
   const handleMouseUpOverDOMImage = () => {
-    console.log('triggered in handleMouseUpOverDOMImage')
+    // console.log('triggered in handleMouseUpOverDOMImage')
     // if (selected === 102) {
     setImageDataInDOM(prev => ({
       ...prev,
@@ -391,7 +391,7 @@ const Canvas = () => {
   }
 
   const handleMouseMoveOverDOMImage = e => {
-    console.log('triggered in handleMouseMoveOverDOMImage')
+    // console.log('triggered in handleMouseMoveOverDOMImage')
     const { pageX, pageY } = e
     const canvas = document.querySelector('canvas')
     if (imageDataInDOM.enableResizing) {
@@ -434,13 +434,13 @@ const Canvas = () => {
   }
 
   const handleMouseLeave = () => {
-    console.log('triggered in handleMouseLeave')
+    // console.log('triggered in handleMouseLeave')
     setIsMouseDown(false)
     setImageDataInDOM(prev => ({ ...prev, enableDragging: false }))
   }
 
   const handleMouseEnter = () => {
-    console.log('triggered in handleMouseEnter')
+    // console.log('triggered in handleMouseEnter')
     if (selected === 102) {
       if (imageDataInDOM.isOverViewing) {
         setImageDataInDOM(prev => ({ ...prev, showOverview: true }))
@@ -479,7 +479,7 @@ const Canvas = () => {
   }
 
   const saveDOMImageInCanvas = () => {
-    console.log('triggered in saveDOMImageInCanvas')
+    // console.log('triggered in saveDOMImageInCanvas')
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     const DOMimage = document.getElementById('domimage')
@@ -595,7 +595,7 @@ const Canvas = () => {
   }
 
   const handleMouseMoveInSelectionRegion = e => {
-    console.log('triggered in handleMouseMoveInSelectionRegion')
+    // console.log('triggered in handleMouseMoveInSelectionRegion')
     const { clientX, clientY } = e
     const { x, y } = canvasRef.current.getBoundingClientRect()
 
@@ -725,9 +725,9 @@ const Canvas = () => {
         e.target !== resizer &&
         e.target !== domimage
       ) {
-        console.log(
-          'triggered in useEffect used for setting while outside canvas'
-        )
+        // console.log(
+        //   'triggered in useEffect used for setting while outside canvas'
+        // )
         setImageDataInDOM(prev => ({
           ...prev,
           enableResizing: false,
@@ -746,7 +746,7 @@ const Canvas = () => {
     const parent = document.getElementById('canvasParent')
 
     const handleDoubleClick = () => {
-      console.log('triggered in useEffect while double clicking')
+      // console.log('triggered in useEffect while double clicking')
       if (imageDataInDOM.height || imageDataInDOM.width) {
         saveDOMImageInCanvas()
       }
