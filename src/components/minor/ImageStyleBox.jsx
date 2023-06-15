@@ -5,7 +5,7 @@ import { ImageDecoList } from '../../assets/Tools'
 import ImageDeco from './ImageDeco'
 
 function ImageStyleBox () {
-  const { selected, setImageDataInDOM } = useContext(Appstate)
+  const { selected, setImageDataInDOM, imageDataInDOM } = useContext(Appstate)
   useEffect(() => {
     const handleKeyPress = e => {
       if (selected === 102) {
@@ -29,7 +29,7 @@ function ImageStyleBox () {
     document.addEventListener('keypress', handleKeyPress)
     return () => document.removeEventListener('keypress', handleKeyPress)
   }, [selected, setImageDataInDOM])
-  return selected === 102 ? (
+  return selected === 102 || imageDataInDOM.getting_used ? (
     <TextStyleBoxWrapper>
       {ImageDecoList.map((item, index) => {
         return <ImageDeco {...item} key={item.id} />

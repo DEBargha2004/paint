@@ -89,8 +89,7 @@ function App () {
           setIsSwapped,
           setHasUndoRedoPerformed,
           hasUndoRedoPerformed,
-          canvasDimensions,
-          imageDataInDOM
+          canvasDimensions
         }}
       >
         <div className='sticky  z-10'>

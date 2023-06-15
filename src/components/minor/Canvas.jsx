@@ -45,6 +45,7 @@ const Canvas = () => {
     initialY: null
   })
   const [selection, setSelection] = useState({
+    mousePress: false,
     initialize: false,
     initialY: null,
     initialX: null,
@@ -65,6 +66,7 @@ const Canvas = () => {
   let [dataSet, index] = canvasData
 
   const handleMouseDown = e => {
+    console.log('triggered in handleMouseDown')
     const { offsetX, offsetY, pageX, pageY } = e.nativeEvent
     setIsMouseDown(true)
     setLast([offsetX, offsetY])
@@ -88,6 +90,7 @@ const Canvas = () => {
       setSelection(prev => ({
         ...prev,
         initialize: true,
+        mousePress: true,
         initialX: offsetX,
         initialY: offsetY
       }))
@@ -95,6 +98,7 @@ const Canvas = () => {
   }
 
   const handleMouseUp = e => {
+    console.log('triggered in handleMouseUp')
     setIsMouseDown(false)
     const canvas = document.querySelector('canvas')
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
@@ -106,13 +110,12 @@ const Canvas = () => {
       selected === 2011 ||
       selected === 2014
     ) {
-      console.log('mouse id up in handle mouseup')
+      console.log('mouse is up in handle mouseup meeting conditions')
       saveCanvasData({ canvas, ctx })
     }
 
     resizing.current = false
     if (selectedImageData.image) {
-      console.log('triggered in handleMouseUp')
       setImageDataInDOM(prev => ({
         ...prev,
         enableResizing: false,
@@ -120,7 +123,7 @@ const Canvas = () => {
         isOverViewing: false
       }))
     }
-    if (selected === 401) {
+    if (selected === 401 && !selectedImageData.image) {
       const left =
         selection.initialX < selection.finalX
           ? selection.initialX
@@ -136,15 +139,14 @@ const Canvas = () => {
       const imageData = ctx.getImageData(left, top, width, height)
 
       const newCanvas = document.createElement('canvas')
-      const newCtx = canvas.getContext('2d')
+      const newCtx = newCanvas.getContext('2d')
       newCanvas.width = width
       newCanvas.height = height
-      newCtx.putImageData(imageData,0,0)
+      newCtx.putImageData(imageData, 0, 0)
       const imageUrl = newCanvas.toDataURL()
-      console.log(imageUrl);
 
       // ctx.fillStyle = 'white'
-      // ctx.fillRect(left,top,width,height)
+      // ctx.fillRect(left, top, width, height)
 
       setSelectedImageData(prev => ({
         ...prev,
@@ -162,6 +164,7 @@ const Canvas = () => {
         top,
         getting_used: true
       }))
+      setSelection(prev => ({ ...prev, mousePress: false }))
     }
   }
 
@@ -253,12 +256,13 @@ const Canvas = () => {
         initialY: pageY
       }))
     }
-    if (selected === 401) {
+    if (selection.mousePress) {
       setSelection(prev => ({ ...prev, finalX: offsetX, finalY: offsetY }))
     }
   }
 
   const handleClick = e => {
+    console.log('triggered in handleClick')
     const { offsetX, offsetY } = e.nativeEvent
     const text = inputBoxInfo.value
     const canvas = document.querySelector('canvas')
@@ -290,8 +294,10 @@ const Canvas = () => {
     if (selectedImageData.image) {
       // paste-image
       if (imageDataInDOM.clicked) {
+        console.log('image is pasted')
         saveDOMImageInCanvas()
       } else {
+        console.log('clicked is incremented')
         setImageDataInDOM(prev => ({ ...prev, clicked: prev.clicked + 1 }))
       }
     }
@@ -327,6 +333,7 @@ const Canvas = () => {
   }
 
   const saveCanvasData = ({ canvas, ctx }) => {
+    console.log('triggered in saveCanvasData')
     const currentCanvasData = ctx.getImageData(
       0,
       0,
@@ -370,6 +377,7 @@ const Canvas = () => {
   }
 
   const handleMouseUpOverDOMImage = () => {
+    console.log('triggered in handleMouseUpOverDOMImage')
     // if (selected === 102) {
     setImageDataInDOM(prev => ({
       ...prev,
@@ -383,6 +391,7 @@ const Canvas = () => {
   }
 
   const handleMouseMoveOverDOMImage = e => {
+    console.log('triggered in handleMouseMoveOverDOMImage')
     const { pageX, pageY } = e
     const canvas = document.querySelector('canvas')
     if (imageDataInDOM.enableResizing) {
@@ -425,11 +434,13 @@ const Canvas = () => {
   }
 
   const handleMouseLeave = () => {
+    console.log('triggered in handleMouseLeave')
     setIsMouseDown(false)
     setImageDataInDOM(prev => ({ ...prev, enableDragging: false }))
   }
 
   const handleMouseEnter = () => {
+    console.log('triggered in handleMouseEnter')
     if (selected === 102) {
       if (imageDataInDOM.isOverViewing) {
         setImageDataInDOM(prev => ({ ...prev, showOverview: true }))
@@ -468,12 +479,15 @@ const Canvas = () => {
   }
 
   const saveDOMImageInCanvas = () => {
+    console.log('triggered in saveDOMImageInCanvas')
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
-    DomToImage.toPng(document.getElementById('domimage')).then(url => {
+    const DOMimage = document.getElementById('domimage')
+    DomToImage.toPng(DOMimage).then(url => {
       const image = new Image()
       image.src = url
       image.onload = () => {
+        selected === 401 ? pasteWhiteRegion() : null
         ctx.drawImage(
           image,
           imageDataInDOM.left,
@@ -491,6 +505,20 @@ const Canvas = () => {
         saveCanvasData({ canvas, ctx })
       }
     })
+  }
+
+  const pasteWhiteRegion = () => {
+    const { finalX, finalY, initialX, initialY } = selection
+
+    const top = finalY > initialY ? initialY : finalY
+    const left = finalX > initialX ? initialX : finalX
+
+    const width = Math.abs(finalX - initialX)
+    const height = Math.abs(finalY - initialY)
+
+    const ctx = canvasRef.current.getContext('2d')
+    ctx.fillStyle = 'white'
+    ctx.fillRect(left, top, width, height)
   }
 
   //test start
@@ -564,6 +592,16 @@ const Canvas = () => {
       left: boundX ? left + changeX : left,
       top: boundY ? top + changeY : top
     }))
+  }
+
+  const handleMouseMoveInSelectionRegion = e => {
+    console.log('triggered in handleMouseMoveInSelectionRegion')
+    const { clientX, clientY } = e
+    const { x, y } = canvasRef.current.getBoundingClientRect()
+
+    const offsetX = clientX - x
+    const offsetY = clientY - y
+    setSelection(prev => ({ ...prev, finalX: offsetX, finalY: offsetY }))
   }
 
   useEffect(() => {
@@ -649,7 +687,20 @@ const Canvas = () => {
       ...prev,
       height: null,
       width: null,
-      clicked: 0
+      clicked: 0,
+      getting_used: false,
+      boundary: false,
+      fit: false,
+      flip_horizontal: false,
+      flip_vertical: false
+    }))
+    setSelection(prev => ({
+      ...prev,
+      initialize: false,
+      finalX: false,
+      finalY: false,
+      initialX: false,
+      initialY: false
     }))
   }, [selected])
   useEffect(() => {
@@ -686,14 +737,16 @@ const Canvas = () => {
         }))
       }
     }
+
     window.addEventListener('mouseup', handleMouseupInWindow)
     return () => window.removeEventListener('mouseup', handleMouseupInWindow)
-  }, [imageDataInDOM])
+  }, [imageDataInDOM, selectedImageData, selection])
 
   useEffect(() => {
     const parent = document.getElementById('canvasParent')
 
     const handleDoubleClick = () => {
+      console.log('triggered in useEffect while double clicking')
       if (imageDataInDOM.height || imageDataInDOM.width) {
         saveDOMImageInCanvas()
       }
@@ -716,7 +769,7 @@ const Canvas = () => {
           : `cursor-auto`
       }`}
       style={{ width: `${window.innerWidth - 400}px`, height: `700px` }}
-      onMouseLeave={() => {
+      onMouseLeave={e => {
         setImageDataInDOM(prev => ({
           ...prev,
           enableDragging: false,
@@ -724,6 +777,7 @@ const Canvas = () => {
           showOverview: false
         }))
         resizing.current = false
+        selected === 401 ? handleMouseUp(e) : null
       }}
     >
       <canvas
@@ -807,7 +861,8 @@ const Canvas = () => {
               left: `0px`,
               height: `${imageDataInDOM.height}px`,
               width: `${imageDataInDOM.width}px`,
-              resize: 'both'
+              resize: 'both',
+              outline: '1px dashed black'
             }}
           >
             <img
@@ -859,6 +914,46 @@ const Canvas = () => {
             </div>
           </div>
         </Dragg>
+      ) : null}
+      {selection.initialize && !selectedImageData.image ? (
+        <div
+          style={{
+            outline: '1px dashed black',
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            height: `${Math.abs(selection.finalY - selection.initialY)}px`,
+            width: `${Math.abs(selection.finalX - selection.initialX)}px`,
+            top:
+              selection.finalY > selection.initialY
+                ? `${selection.initialY}px`
+                : `${selection.finalY}px`,
+            left:
+              selection.finalX > selection.initialX
+                ? `${selection.initialX}px`
+                : `${selection.finalX}px`,
+            zIndex: 5
+          }}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMoveInSelectionRegion}
+        ></div>
+      ) : null}
+      {selected === 401 && selectedImageData.image ? (
+        <div
+          style={{
+            backgroundColor: 'white',
+            position: 'absolute',
+            height: `${Math.abs(selection.finalY - selection.initialY)}px`,
+            width: `${Math.abs(selection.finalX - selection.initialX)}px`,
+            top:
+              selection.finalY > selection.initialY
+                ? `${selection.initialY}px`
+                : `${selection.finalY}px`,
+            left:
+              selection.finalX > selection.initialX
+                ? `${selection.initialX}px`
+                : `${selection.finalX}px`
+          }}
+        ></div>
       ) : null}
     </div>
   )
